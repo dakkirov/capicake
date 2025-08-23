@@ -1,0 +1,10 @@
+[theme]
+base = "light"                    # force light theme
+primaryColor = "#FF5CA8"          # your brand pink
+backgroundColor = "#FFF7FB"       # app background
+secondaryBackgroundColor = "#FFFFFF"  # card/containers
+textColor = "#2C2C2C"
+
+# Optional: slimmer top toolbar
+[client]
+toolbarMode = "viewer"
