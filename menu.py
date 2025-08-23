@@ -235,7 +235,7 @@ with right:
                     st.write(f"**{item['name']}** · x{qty}")
                     st.caption(f"Base: {base} · Relleno: {filling} · Pack: {'Estándar' if pack=='Estandar' else 'Personalizado'}")
                     if pack == "Personalizado":
-                        st.caption("Packaging personalizado: costo adicional a definir por WhatsApp según el diseño.", help="Costo a convenir")
+                        st.caption("Costo a convenir!", help="Packaging personalizado: costo adicional a definir por WhatsApp según el diseño.")
                     st.write(f"Total ítem: **{ars(item['price'] * qty)}**")
                     if st.button("Quitar", key=f"rm_{key}"):
                         remove_from_cart(key)
