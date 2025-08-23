@@ -19,8 +19,9 @@ if "lang" not in st.session_state:
     st.session_state.lang = "es"  # default: Español (AR)
 
 LANGS = {
-    "es": "Español (AR)",
-    "en": "English",
+    "es": "🇦🇷 Español (AR)",
+    "en": "🇬🇧 English",
+    "ru": "🇷🇺 Русский"
 }
 
 TR = {
@@ -100,27 +101,70 @@ TR = {
         "msg_warn": "⚠️ I chose custom packaging in some items. Extra cost will be agreed on WhatsApp.",
         "msg_end": "Could you confirm availability and total? Thanks! 🧁",
     },
+    "ru": {
+    "title": "Capicake — Меню и заказ",
+    "subtitle": "Выберите капкейки, соберите корзину и отправьте заказ в WhatsApp в один клик.",
+    "cart": "Ваша корзина",
+    "empty_cart": "Ваша корзина пуста.",
+    # You can ignore {plural} for RU; it will be passed but not used
+    "subtotal_btn": "Итого: {subtotal} • {items} шт.",
+    "order_details": "Данные заказа",
+    "name": "Имя",
+    "mode": "Способ",
+    "pickup": "Самовывоз из Палермо",
+    "delivery": "Доставка",
+    "choose_dt": "Выбрать дату/время",
+    "date": "Дата",
+    "time": "Время",
+    "address": "Адрес (если доставка)",
+    "notes": "Примечания (вкусы, пожелания и т. п.)",
+    "wa_send": "📲 Отправить заказ в WhatsApp",
+    "remove": "Удалить",
+    "empty": "Очистить корзину",
+    "unit_price": "за штуку",
+    "item_total": "Итого по позиции",
+    "base": "Основа (бисквит)",
+    "filling": "Начинка",
+    "packaging": "Упаковка",
+    "qty6": "Количество (мин. 6)",
+    "add_to_cart": "Добавить в корзину",
+    "pack_note": "Индивидуальная упаковка: доп. стоимость согласовывается в WhatsApp в зависимости от дизайна.",
+    "msg_hi": "Здравствуйте, CapiCake! Хочу оформить заказ:",
+    "msg_subtotal": "Итого: {subtotal}",
+    "msg_subtotal_no_custom": "Итого: {subtotal} (индивидуальная упаковка не включена)",
+    "msg_mode": "Способ: {mode}",
+    "msg_when": "На дату/время: {when}",
+    "msg_addr": "Адрес: {addr}",
+    "msg_name": "Имя: {name}",
+    "msg_notes": "Примечания: {notes}",
+    "msg_warn": "⚠️ Я выбрал(а) индивидуальную упаковку для некоторых позиций. Доп. стоимость согласуем в WhatsApp.",
+    "msg_end": "Подтвердите, пожалуйста, доступность и итоговую стоимость. Спасибо! 🧁",
+    },
 }
 
-# Options with internal codes (stable) + per-language labels
+# BASES
 BASES = [
-    ("red_velvet", {"es": "Red velvet (terciopelo rojo)", "en": "Red velvet"}),
-    ("chocolate",  {"es": "Chocolate",                     "en": "Chocolate"}),
-    ("vanilla",    {"es": "Vainilla",                      "en": "Vanilla"}),
-    ("strawberry", {"es": "Frutilla",                      "en": "Strawberry"}),
+    ("red_velvet", {"es": "Red velvet (terciopelo rojo)", "en": "Red velvet", "ru": "Ред велвет (красный бархат)"}),
+    ("chocolate",  {"es": "Chocolate",                     "en": "Chocolate", "ru": "Шоколадный"}),
+    ("vanilla",    {"es": "Vainilla",                      "en": "Vanilla",   "ru": "Ванильный"}),
+    ("strawberry", {"es": "Frutilla",                      "en": "Strawberry","ru": "Клубничный"}),
 ]
+
+# FILLINGS
 FILLINGS = [
-    ("strawberry", {"es": "Frutilla",      "en": "Strawberry"}),
-    ("raspberry",  {"es": "Frambuesa",     "en": "Raspberry"}),
-    ("dulce",      {"es": "Dulce de leche","en": "Dulce de leche"}),
-    ("pistachio",  {"es": "Pistacho",      "en": "Pistachio"}),
-    ("caramel",    {"es": "Caramelo",      "en": "Caramel"}),
-    ("chocolate",  {"es": "Chocolate",     "en": "Chocolate"}),
-    ("blueberry",  {"es": "Arándano",      "en": "Blueberry"}),
+    ("strawberry", {"es": "Frutilla",      "en": "Strawberry", "ru": "Клубничная"}),
+    ("raspberry",  {"es": "Frambuesa",     "en": "Raspberry",  "ru": "Малиновая"}),
+    ("dulce",      {"es": "Dulce de leche","en": "Dulce de leche","ru": "Дульсе де лече"}),
+    ("pistachio",  {"es": "Pistacho",      "en": "Pistachio",  "ru": "Фисташковая"}),
+    ("caramel",    {"es": "Caramelo",      "en": "Caramel",    "ru": "Карамельная"}),
+    ("chocolate",  {"es": "Chocolate",     "en": "Chocolate",  "ru": "Шоколадная"}),
+    ("blueberry",  {"es": "Arándano",      "en": "Blueberry",  "ru": "Черничная"}),
 ]
+
+# PACKAGING
 PACK_LABELS = {
-    "standard": {"es": "Estandar",      "en": "Standard"},
-    "custom":   {"es": "Personalizado", "en": "Custom"},
+    "standard": {"es": "Estandar", "en": "Standard",     "ru": "Стандартная"},
+    "custom":   {"es": "Personalizado", "en": "Custom",  "ru": "Индивидуальная"},
 }
 
 def lang() -> str:
