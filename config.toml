@@ -1,0 +1,13 @@
+mkdir -p .streamlit
+cat > .streamlit/config.toml << 'EOF'
+[theme]
+base="light"
+primaryColor="#FF5CA8"
+backgroundColor="#FFF7FB"
+secondaryBackgroundColor="#FFFFFF"
+textColor="#2C2C2C"
+
+# (optional) slim toolbar
+[client]
+toolbarMode = "viewer"
+EOF
