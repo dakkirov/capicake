@@ -295,11 +295,14 @@ if "_last_added" in st.session_state:
 # =========================
 h1, h2, h3 = st.columns([0.08, 0.70, 0.22], gap="small")
 with h1:
+    st.title("")
     st.image("images/logo.png", use_container_width=True)
 with h2:
+    st.title("")
     st.markdown(f"<h1 style='margin:0'>{t('title')}</h1>", unsafe_allow_html=True)
     st.caption(t("subtitle"))
 with h3:
+    st.title("")
     st.selectbox("Language / Idioma", options=list(LANGS.keys()),
                  index=list(LANGS.keys()).index(lang()),
                  format_func=lambda k: LANGS[k],
