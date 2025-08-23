@@ -303,7 +303,7 @@ with left:
         with col_action:
             pack_val = st.radio("Packaging", ["Estandar", "Personalizado"], index=0, horizontal=True, key=f"pack_{item['id']}")
             if pack_val == "Personalizado":
-                st.caption("Packaging personalizado = costo adicional a definir por WhatsApp según diseño.", help="Costo a convenir", unsafe_allow_html=False)
+                st.caption("Costo a convenir!", help="Packaging personalizado: costo adicional a definir por WhatsApp según el diseño.", unsafe_allow_html=False)
             qty_val = st.number_input("Cantidad (mín. 6)", min_value=6, value=6, step=1, key=f"qty_{item['id']}")
             st.write(f"**{ars(item['price'])}** por unidad")
             if st.button("Agregar al carrito", key=f"add_{item['id']}"):
