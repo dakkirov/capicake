@@ -191,8 +191,9 @@ MENU_ITEMS = [
         "desc": {
             "es": "Vainilla con corazón de frutilla y frosting rosa-violeta con perlas doradas.",
             "en": "Vanilla with strawberry heart and pink-violet frosting with golden pearls.",
+            "ru": "Ванильный капкейк с клубничной начинкой и розово-фиолетовым кремом, украшен золотыми шариками.",
         },
-        "image": "images/joya_rosa.png",  # PNG
+        "image": "images/joya_rosa.png",
     },
     {
         "id": "flor_encanto",
@@ -201,11 +202,11 @@ MENU_ITEMS = [
         "desc": {
             "es": "Frosting rosa + crema, pétalos cristalizados y flor violeta.",
             "en": "Pink + cream frosting, candied petals and violet flower.",
+            "ru": "Крем розового и сливочного оттенков, засахаренные лепестки и фиолетовый цветок.",
         },
         "image": None,
     },
 ]
-
 # =========================
 # HELPERS
 # =========================
