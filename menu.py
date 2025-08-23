@@ -7,40 +7,158 @@ from datetime import date, time
 # =========================
 # CONFIG
 # =========================
+st.set_page_config(page_title="Capicake — Menú & Pedido", page_icon="🧁", layout="wide")
+
 BUSINESS_PHONE = "5491162107712"   # WhatsApp Business CapiCake
 CURRENCY = "ARS $"
 
-# Bases (RU -> ES AR)
-BASES_CUPCAKE = [
-    "Red velvet (terciopelo rojo)",
-    "Chocolate",
-    "Vainilla",
-    "Frutilla",
+# =========================
+# LANGUAGE / I18N
+# =========================
+if "lang" not in st.session_state:
+    st.session_state.lang = "es"  # default: Español (AR)
+
+LANGS = {
+    "es": "Español (AR)",
+    "en": "English",
+}
+
+TR = {
+    "es": {
+        "title": "Capicake — Menú & Pedido",
+        "subtitle": "Elegí tus cupcakes, armá el carrito y enviá el pedido por WhatsApp en 1 click.",
+        "cart": "Tu Carrito",
+        "empty_cart": "Tu carrito está vacío.",
+        "subtotal_btn": "Subtotal: {subtotal} • {items} ítem{plural}",
+        "order_details": "Datos para el pedido",
+        "name": "Nombre",
+        "mode": "Modalidad",
+        "pickup": "Retiro por Palermo",
+        "delivery": "Delivery",
+        "choose_dt": "Elegir fecha/hora",
+        "date": "Fecha",
+        "time": "Hora",
+        "address": "Dirección (si es delivery)",
+        "notes": "Notas (sabores, dedicatoria, etc.)",
+        "wa_send": "📲 Enviar pedido por WhatsApp",
+        "remove": "Quitar",
+        "empty": "Vaciar carrito",
+        "unit_price": "por unidad",
+        "item_total": "Total ítem",
+        "base": "Base (bizcochuelo)",
+        "filling": "Relleno",
+        "packaging": "Packaging",
+        "qty6": "Cantidad (mín. 6)",
+        "add_to_cart": "Agregar al carrito",
+        "pack_note": "Packaging personalizado: costo adicional a definir por WhatsApp según el diseño.",
+        "msg_hi": "Hola CapiCake! Quiero hacer este pedido:",
+        "msg_subtotal": "Subtotal: {subtotal}",
+        "msg_subtotal_no_custom": "Subtotal: {subtotal} (no incluye packaging personalizado)",
+        "msg_mode": "Modalidad: {mode}",
+        "msg_when": "Para: {when}",
+        "msg_addr": "Dirección: {addr}",
+        "msg_name": "Nombre: {name}",
+        "msg_notes": "Notas: {notes}",
+        "msg_warn": "⚠️ Elegí Packaging personalizado en algunos ítems. El costo extra se define por WhatsApp según el diseño.",
+        "msg_end": "¿Me confirmás disponibilidad y total? ¡Gracias! 🧁",
+    },
+    "en": {
+        "title": "Capicake — Menu & Order",
+        "subtitle": "Pick your cupcakes, build the cart and send your order via WhatsApp in 1 click.",
+        "cart": "Your Cart",
+        "empty_cart": "Your cart is empty.",
+        "subtotal_btn": "Subtotal: {subtotal} • {items} item{plural}",
+        "order_details": "Order details",
+        "name": "Name",
+        "mode": "Mode",
+        "pickup": "Pickup in Palermo",
+        "delivery": "Delivery",
+        "choose_dt": "Choose date/time",
+        "date": "Date",
+        "time": "Time",
+        "address": "Address (if delivery)",
+        "notes": "Notes (flavors, dedication, etc.)",
+        "wa_send": "📲 Send order via WhatsApp",
+        "remove": "Remove",
+        "empty": "Empty cart",
+        "unit_price": "per unit",
+        "item_total": "Item total",
+        "base": "Base (cake)",
+        "filling": "Filling",
+        "packaging": "Packaging",
+        "qty6": "Quantity (min. 6)",
+        "add_to_cart": "Add to cart",
+        "pack_note": "Custom packaging: extra cost to be agreed on WhatsApp depending on the design.",
+        "msg_hi": "Hi CapiCake! I'd like to place this order:",
+        "msg_subtotal": "Subtotal: {subtotal}",
+        "msg_subtotal_no_custom": "Subtotal: {subtotal} (custom packaging not included)",
+        "msg_mode": "Mode: {mode}",
+        "msg_when": "For: {when}",
+        "msg_addr": "Address: {addr}",
+        "msg_name": "Name: {name}",
+        "msg_notes": "Notes: {notes}",
+        "msg_warn": "⚠️ I chose custom packaging in some items. Extra cost will be agreed on WhatsApp.",
+        "msg_end": "Could you confirm availability and total? Thanks! 🧁",
+    },
+}
+
+# Options with internal codes (stable) + per-language labels
+BASES = [
+    ("red_velvet", {"es": "Red velvet (terciopelo rojo)", "en": "Red velvet"}),
+    ("chocolate",  {"es": "Chocolate",                     "en": "Chocolate"}),
+    ("vanilla",    {"es": "Vainilla",                      "en": "Vanilla"}),
+    ("strawberry", {"es": "Frutilla",                      "en": "Strawberry"}),
 ]
+FILLINGS = [
+    ("strawberry", {"es": "Frutilla",      "en": "Strawberry"}),
+    ("raspberry",  {"es": "Frambuesa",     "en": "Raspberry"}),
+    ("dulce",      {"es": "Dulce de leche","en": "Dulce de leche"}),
+    ("pistachio",  {"es": "Pistacho",      "en": "Pistachio"}),
+    ("caramel",    {"es": "Caramelo",      "en": "Caramel"}),
+    ("chocolate",  {"es": "Chocolate",     "en": "Chocolate"}),
+    ("blueberry",  {"es": "Arándano",      "en": "Blueberry"}),
+]
+PACK_LABELS = {
+    "standard": {"es": "Estandar",      "en": "Standard"},
+    "custom":   {"es": "Personalizado", "en": "Custom"},
+}
 
-# Rellenos
-BASE_FILLINGS = ["Frutilla", "Frambuesa", "Dulce de leche"]
-EXTRA_FILLINGS = ["Pistacho", "Caramelo", "Chocolate", "Arándano"]
-FILLINGS = BASE_FILLINGS + EXTRA_FILLINGS
+def lang() -> str:
+    return st.session_state.get("lang", "es")
 
+def t(key: str, **kw) -> str:
+    s = TR.get(lang(), {}).get(key, TR["es"].get(key, key))
+    return s.format(**kw) if kw else s
+
+def opt_label(options, code: str) -> str:
+    for c, labels in options:
+        if c == code:
+            return labels.get(lang(), labels["es"])
+    return code
+
+# =========================
+# DATA
+# =========================
 MENU_ITEMS = [
     {
         "id": "joya_rosa",
         "name": "Joya Rosa",
         "price": 2700,
-        "desc": "Vainilla con corazón de frutilla y frosting rosa-violeta con perlas doradas.",
+        "desc": {
+            "es": "Vainilla con corazón de frutilla y frosting rosa-violeta con perlas doradas.",
+            "en": "Vanilla with strawberry heart and pink-violet frosting with golden pearls.",
+        },
         "image": "images/joya_rosa.png",  # PNG
-        "fillings": FILLINGS,
-        "bases": BASES_CUPCAKE,
     },
     {
         "id": "flor_encanto",
         "name": "Flor de Encanto",
         "price": 2900,
-        "desc": "Frosting rosa + crema, pétalos cristalizados y flor violeta.",
+        "desc": {
+            "es": "Frosting rosa + crema, pétalos cristalizados y flor violeta.",
+            "en": "Pink + cream frosting, candied petals and violet flower.",
+        },
         "image": None,
-        "fillings": FILLINGS,
-        "bases": BASES_CUPCAKE,
     },
 ]
 
@@ -52,13 +170,13 @@ def ars(n: float) -> str:
 
 def init_state():
     if "cart" not in st.session_state:
-        # cart key: item_id||base||filling||pack -> qty
+        # key: item_id||base_code||filling_code||pack_code -> qty
         st.session_state.cart = {}
     if "cart_open" not in st.session_state:
         st.session_state.cart_open = False
 
-def cart_key(item_id: str, base: str, filling: str, pack: str) -> str:
-    return f"{item_id}||{base}||{filling}||{pack}"
+def cart_key(item_id: str, base_code: str, filling_code: str, pack_code: str) -> str:
+    return f"{item_id}||{base_code}||{filling_code}||{pack_code}"
 
 def parse_key(key: str):
     parts = key.split("||")
@@ -73,43 +191,33 @@ def remove_from_cart(key: str):
     if key in st.session_state.cart:
         del st.session_state.cart[key]
 
-def build_message(cart_lines, subtotal, buyer, modality, when_txt, address, notes, custom_pack_flag):
-    lines = ["Hola CapiCake! Quiero hacer este pedido:", ""]
+def build_message(cart_lines, subtotal, buyer, modality_label, when_txt, address, notes, custom_pack_flag):
+    lines = [t("msg_hi"), ""]
     lines += cart_lines
-    lines += ["", f"Subtotal: {ars(subtotal)}" + (" (no incluye packaging personalizado)" if custom_pack_flag else "")]
-    lines += [f"Modalidad: {modality}"]
-    if when_txt: lines.append(f"Para: {when_txt}")
-    if address and modality == "Delivery": lines.append(f"Dirección: {address}")
-    if buyer: lines.append(f"Nombre: {buyer}")
-    if notes: lines += ["", f"Notas: {notes}"]
     if custom_pack_flag:
-        lines += ["", "⚠️ Elegí *Packaging personalizado* en algunos ítems. El costo extra se define por WhatsApp según el diseño."]
-    lines += ["", "¿Me confirmás disponibilidad y total? ¡Gracias! 🧁"]
+        lines += ["", t("msg_subtotal_no_custom", subtotal=ars(subtotal))]
+    else:
+        lines += ["", t("msg_subtotal", subtotal=ars(subtotal))]
+    lines += [t("msg_mode", mode=modality_label)]
+    if when_txt: lines.append(t("msg_when", when=when_txt))
+    if address and modality_label.lower().startswith(("deliv","deli","delivery","entrega","del")):
+        lines.append(t("msg_addr", addr=address))
+    if buyer: lines.append(t("msg_name", name=buyer))
+    if notes: lines += ["", t("msg_notes", notes=notes)]
+    if custom_pack_flag: lines += ["", t("msg_warn")]
+    lines += ["", t("msg_end")]
     return "\n".join(lines)
 
 def whatsapp_url(message: str) -> str:
     return f"https://wa.me/{BUSINESS_PHONE}?text={quote_plus(message)}"
 
 # =========================
-# UI SETUP
+# STYLES (Light look + white text buttons + big subtotal)
 # =========================
-st.set_page_config(page_title="CapiCake Menu", page_icon="🧁", layout="wide")
-init_state()
-
-# Toast de agregado
-if "_last_added" in st.session_state:
-    name, q = st.session_state.pop("_last_added")
-    try:
-        st.toast(f"Agregado: {name} x{q}", icon="🧁")
-    except Exception:
-        pass
-
-# -------- Estilos light --------
 st.markdown("""
 <style>
   :root{
     --cap-pink:#FF5CA8;
-    --cap-pink-100:#FFE5F2;
     --cap-bg:#FFF7FB;
     --cap-card:#FFFFFF;
     --cap-text:#2C2C2C;
@@ -118,10 +226,7 @@ st.markdown("""
   .stApp, body { background: var(--cap-bg) !important; color: var(--cap-text) !important; }
   .block-container{ max-width: 1600px; padding-top: .5rem; }
 
-  /* Header spacing */
-  .cap-header h1{ margin:0; padding:0; font-weight:900; }
-
-  /* Botones siempre con texto blanco */
+  /* Buttons — force white text */
   .stButton>button{
      background: var(--cap-pink) !important;
      border:0 !important; padding:.62rem 1rem !important;
@@ -130,6 +235,7 @@ st.markdown("""
      color:#fff !important;
   }
   .stButton>button *{ color:#fff !important; }
+  .stButton>button:hover{ filter:brightness(0.97); }
 
   /* Inputs */
   .stTextInput>div>div>input, .stTextArea textarea,
@@ -154,7 +260,7 @@ st.markdown("""
      box-shadow: 0 0 0 3px rgba(255,92,168,.18) !important;
   }
 
-  /* Subtotal como botón grande */
+  /* Subtotal (big) */
   .subtotal-btn .stButton > button{
     background: var(--cap-pink) !important;
     border-radius: 20px !important;
@@ -165,56 +271,81 @@ st.markdown("""
     font-size:1.6rem !important; font-weight:900 !important;
   }
 
-  /* Sticky cart */
+  /* Sticky cart panel */
   .cart-panel{ position: sticky; top: 1rem; }
 
-  /* Nota mini */
+  /* Small note */
   .cap-mini-note{ font-size:.85rem; color:#7A7A7A; margin-top:.25rem; }
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- Header with logo ----------
-h1, h2 = st.columns([0.09, 0.91], gap="small")
-with h1:
-    st.title("")
-    st.image("images/logo.png", use_container_width=True)
-with h2:
-    st.title("")
-    st.markdown("<div class='cap-header'><h1>Menú & Pedido</h1></div>", unsafe_allow_html=True)
-    st.caption("Elegí tus cupcakes, armá el carrito y enviá el pedido por WhatsApp en 1 click.")
+# =========================
+# STATE INIT & TOAST
+# =========================
+init_state()
+if "_last_added" in st.session_state:
+    name, q = st.session_state.pop("_last_added")
+    try:
+        st.toast((f"Agregado: {name} x{q}" if lang()=="es" else f"Added: {name} x{q}"), icon="🧁")
+    except Exception:
+        pass
 
 # =========================
-# LAYOUT: menú (izq) | carrito (der)
+# HEADER with Logo + Title + Language selector
+# =========================
+h1, h2, h3 = st.columns([0.08, 0.70, 0.22], gap="small")
+with h1:
+    st.image("images/logo.png", use_container_width=True)
+with h2:
+    st.markdown(f"<h1 style='margin:0'>{t('title')}</h1>", unsafe_allow_html=True)
+    st.caption(t("subtitle"))
+with h3:
+    st.selectbox("Language / Idioma", options=list(LANGS.keys()),
+                 index=list(LANGS.keys()).index(lang()),
+                 format_func=lambda k: LANGS[k],
+                 key="lang")
+
+st.divider()
+
+# =========================
+# LAYOUT: Menu (left) | Cart (right)
 # =========================
 left, right = st.columns([3, 1], gap="large")
 
-# -------- RIGHT: CARRITO --------
+# -------- RIGHT: CART --------
 with right:
-    st.markdown("### 🛒 Tu Carrito")
-
+    st.markdown(f"### 🛒 {t('cart')}")
     subtotal = 0
     items_count = 0
     custom_pack_flag = False
     cart_lines = []
 
+    # Build summary lines from current cart
     for key, qty in st.session_state.cart.items():
-        item_id, base, filling, pack = parse_key(key)
+        item_id, base_code, fill_code, pack_code = parse_key(key)
         item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
         if not item:
             continue
         line_total = item["price"] * qty
         subtotal += line_total
         items_count += qty
-        if pack == "Personalizado":
+        if pack_code == "custom":
             custom_pack_flag = True
-        pack_txt = "Estándar" if pack == "Estandar" else "Personalizado"
-        cart_lines.append(f"- {item['name']} · Base: {base} · Relleno: {filling} · Pack: {pack_txt} · x{qty} = {ars(line_total)}")
+        base_label = opt_label(BASES, base_code)
+        fill_label = opt_label(FILLINGS, fill_code)
+        pack_label = PACK_LABELS[pack_code][lang()]
+        cart_lines.append(
+            f"- {item['name']} · {t('base').split('(')[0].strip()}: {base_label} · "
+            f"{t('filling')}: {fill_label} · {t('packaging')}: {pack_label} · "
+            f"x{qty} = {ars(line_total)}"
+        )
 
     if not cart_lines:
-        st.info("Tu carrito está vacío.")
+        st.info(t("empty_cart"))
     else:
         arrow = "▾" if not st.session_state.cart_open else "▴"
-        label = f"Subtotal: {ars(subtotal)} • {items_count} ítem" + ("s" if items_count != 1 else "") + f"  {arrow}"
+        plural = "" if (lang()=="en" and items_count==1) else ("s" if lang()=="en" else "")
+        label = t("subtotal_btn", subtotal=ars(subtotal), items=items_count, plural=plural) + f"  {arrow}"
         st.markdown('<div class="subtotal-btn">', unsafe_allow_html=True)
         if st.button(label, key="toggle_cart", use_container_width=True):
             st.session_state.cart_open = not st.session_state.cart_open
@@ -223,91 +354,115 @@ with right:
 
         if st.session_state.cart_open:
             for key, qty in list(st.session_state.cart.items()):
-                item_id, base, filling, pack = parse_key(key)
+                item_id, base_code, fill_code, pack_code = parse_key(key)
                 item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
                 if not item:
                     continue
-                c1, c2 = st.columns([3, 2], gap="large")  # one nesting level
+                base_label = opt_label(BASES, base_code)
+                fill_label = opt_label(FILLINGS, fill_code)
+                pack_label = PACK_LABELS[pack_code][lang()]
+
+                c1, c2 = st.columns([3, 2], gap="large")  # single nesting level
                 with c1:
                     if item.get("image") and os.path.exists(item["image"]):
                         st.image(item["image"], use_container_width=True)
                 with c2:
                     st.write(f"**{item['name']}** · x{qty}")
-                    st.caption(f"Base: {base} · Relleno: {filling} · Pack: {'Estándar' if pack=='Estandar' else 'Personalizado'}")
-                    if pack == "Personalizado":
-                        st.caption("Costo a convenir!", help="Packaging personalizado: costo adicional a definir por WhatsApp según el diseño.")
-                    st.write(f"Total ítem: **{ars(item['price'] * qty)}**")
-                    if st.button("Quitar", key=f"rm_{key}"):
+                    st.caption(f"{t('base')}: {base_label} · {t('filling')}: {fill_label} · {t('packaging')}: {pack_label}")
+                    if pack_code == "custom":
+                        st.caption(t("pack_note"))
+                    st.write(f"{t('item_total')}: **{ars(item['price'] * qty)}**")
+                    if st.button(t("remove"), key=f"rm_{key}"):
                         remove_from_cart(key)
                         st.rerun()
 
             st.divider()
-            if st.button("Vaciar carrito"):
+            if st.button(t("empty")):
                 st.session_state.cart = {}
                 st.rerun()
 
-    # Formulario de pedido
+    # Order form
     st.divider()
-    st.markdown("#### Datos para el pedido")
-    buyer = st.text_input("Nombre", placeholder="Tu nombre")
-    modality = st.radio("Modalidad", ["Retiro por Palermo", "Delivery"], index=0, horizontal=True)
+    st.markdown(f"#### {t('order_details')}")
+    buyer = st.text_input(t("name"), placeholder=("Tu nombre" if lang()=="es" else "Your name"))
+    modality_label = st.radio(t("mode"),
+                              [t("pickup"), t("delivery")],
+                              index=0, horizontal=True)
 
     col_dt1, col_dt2 = st.columns(2)
     with col_dt1:
-        use_date = st.checkbox("Elegir fecha/hora")
+        use_date = st.checkbox(t("choose_dt"))
     if use_date:
-        with col_dt1: d = st.date_input("Fecha", value=date.today())
-        with col_dt2: t = st.time_input("Hora", value=time(18, 0))
-        when_txt = f"{d.strftime('%d/%m/%Y')} {t.strftime('%H:%M')}"
+        with col_dt1: d = st.date_input(t("date"), value=date.today())
+        with col_dt2: tm = st.time_input(t("time"), value=time(18, 0))
+        when_txt = f"{d.strftime('%d/%m/%Y')} {tm.strftime('%H:%M')}"
     else:
         when_txt = ""
-    address = st.text_input("Dirección (si es delivery)", placeholder="Calle, número, piso…")
-    notes = st.text_area("Notas (sabores, dedicatoria, etc.)", placeholder="Ej: Sin frutos secos")
+
+    address = st.text_input(t("address"),
+                            placeholder=("Calle, número, piso…" if lang()=="es" else "Street, number, floor…"))
+    notes = st.text_area(t("notes"),
+                         placeholder=("Ej: Sin frutos secos" if lang()=="es" else "E.g., no nuts"))
 
     st.divider()
     if cart_lines:
-        msg = build_message(cart_lines, subtotal, buyer, modality, when_txt, address, notes, custom_pack_flag)
+        msg = build_message(cart_lines, subtotal, buyer, modality_label, when_txt, address, notes, custom_pack_flag)
         st.markdown(
             f"<a href='{whatsapp_url(msg)}' target='_blank' "
             "style='background:#25D366;color:#fff;font-weight:800;"
             "padding:.8rem 1.2rem;border-radius:14px;box-shadow:0 2px 10px rgba(37,211,102,.25); text-decoration:none;'>"
-            "📲 Enviar pedido por WhatsApp</a>",
+            f"{t('wa_send')}</a>",
             unsafe_allow_html=True
         )
     else:
-        st.button("📲 Enviar pedido por WhatsApp", disabled=True)
+        st.button(t("wa_send"), disabled=True)
 
-# -------- LEFT: MENÚ — 1 producto por fila (3 columnas: foto | base+relleno | packaging+cantidad+botón) --------
+# -------- LEFT: MENU — 1 product per row (Col1: Photo | Col2: Base+Filling | Col3: Packaging+Qty+Button) --------
 with left:
-    
-    st.header("Cupcakes")
     for item in MENU_ITEMS:
+        # Row header (name + localized desc)
         st.subheader(item["name"])
-        st.caption(item["desc"])
+        st.caption(item["desc"][lang()])
 
         col_img, col_opts, col_action = st.columns([1, 1.2, 1.1], gap="large")
 
-        # Col 1 — Foto
+        # Col 1 — Photo
         with col_img:
             if item.get("image") and os.path.exists(item["image"]):
                 st.image(item["image"], use_container_width=True)
             else:
                 st.markdown("🧁")
 
-        # Col 2 — Base + Relleno
+        # Col 2 — Base + Filling (codes with localized labels)
         with col_opts:
-            base_val = st.selectbox("Base (bizcochuelo)", item.get("bases", BASES_CUPCAKE), key=f"base_{item['id']}")
-            fill_val = st.selectbox("Relleno", item.get("fillings", FILLINGS), key=f"fill_{item['id']}")
+            base_code = st.selectbox(
+                t("base"),
+                options=[c for c, _ in BASES],
+                format_func=lambda c: opt_label(BASES, c),
+                key=f"base_{item['id']}"
+            )
+            fill_code = st.selectbox(
+                t("filling"),
+                options=[c for c, _ in FILLINGS],
+                format_func=lambda c: opt_label(FILLINGS, c),
+                key=f"fill_{item['id']}"
+            )
 
-        # Col 3 — Packaging + Cantidad + Botón
+        # Col 3 — Packaging + Qty + Add
         with col_action:
-            pack_val = st.radio("Packaging", ["Estandar", "Personalizado"], index=0, horizontal=True, key=f"pack_{item['id']}")
-            if pack_val == "Personalizado":
-                st.caption("Costo a convenir!", help="Packaging personalizado: costo adicional a definir por WhatsApp según el diseño.", unsafe_allow_html=False)
-            qty_val = st.number_input("Cantidad (mín. 6)", min_value=6, value=6, step=1, key=f"qty_{item['id']}")
-            st.write(f"**{ars(item['price'])}** por unidad")
-            if st.button("Agregar al carrito", key=f"add_{item['id']}"):
-                key = cart_key(item["id"], base_val, fill_val, pack_val)
+            pack_code = st.radio(
+                t("packaging"),
+                options=["standard", "custom"],
+                horizontal=True,
+                format_func=lambda c: PACK_LABELS[c][lang()],
+                key=f"pack_{item['id']}"
+            )
+            if pack_code == "custom":
+                st.caption(t("pack_note"))
+            qty_val = st.number_input(t("qty6"), min_value=6, value=6, step=1, key=f"qty_{item['id']}")
+            st.write(f"**{ars(item['price'])}** {t('unit_price')}")
+            if st.button(t("add_to_cart"), key=f"add_{item['id']}"):
+                key = cart_key(item["id"], base_code, fill_code, pack_code)
                 add_to_cart(key, qty_val)
                 st.session_state._last_added = (item["name"], qty_val)
                 st.rerun()
