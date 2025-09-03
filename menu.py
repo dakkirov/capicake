@@ -143,22 +143,25 @@ TR = {
 }
 
 # BASES
+# бисквит: ванильный, шоколадный, морковный, ред вельвет, лимонный
 BASES = [
-    ("red_velvet", {"es": "Red velvet (terciopelo rojo)", "en": "Red velvet", "ru": "Ред велвет (красный бархат)"}),
-    ("chocolate",  {"es": "Chocolate",                     "en": "Chocolate", "ru": "Шоколадный"}),
-    ("vanilla",    {"es": "Vainilla",                      "en": "Vanilla",   "ru": "Ванильный"}),
-    ("strawberry", {"es": "Frutilla",                      "en": "Strawberry","ru": "Клубничный"}),
+    ("red_velvet", {"es": "Red velvet", "en": "Red velvet", "ru": "Ред велвет (красный бархат)"}),
+    ("chocolate",  {"es": "Chocolate", "en": "Chocolate", "ru": "Шоколадный"}),
+    ("vanilla",    {"es": "Vainilla", "en": "Vanilla",   "ru": "Ванильный"}),
+    ("carrot",     {"es": "Zanahoria", "en": "Carrot",   "ru": "Морковный"}),
+    ("lemon",      {"es": "Limón",     "en": "Lemon",    "ru": "Лимонный"})
 ]
 
 # FILLINGS
+# начинка клубничное конфи, малиновое, дульсе де лече, шоколадное пралине, маракуйя, лимонный курд, капучино
 FILLINGS = [
-    ("strawberry", {"es": "Frutilla",      "en": "Strawberry", "ru": "Клубничная"}),
-    ("raspberry",  {"es": "Frambuesa",     "en": "Raspberry",  "ru": "Малиновая"}),
-    ("dulce",      {"es": "Dulce de leche","en": "Dulce de leche","ru": "Дульсе де лече"}),
-    ("pistachio",  {"es": "Pistacho",      "en": "Pistachio",  "ru": "Фисташковая"}),
-    ("caramel",    {"es": "Caramelo",      "en": "Caramel",    "ru": "Карамельная"}),
-    ("chocolate",  {"es": "Chocolate",     "en": "Chocolate",  "ru": "Шоколадная"}),
-    ("blueberry",  {"es": "Arándano",      "en": "Blueberry",  "ru": "Черничная"}),
+    ("strawberry_confit", {"es": "Confit de frutilla", "en": "Strawberry confit", "ru": "Клубничное конфи"}),
+    ("raspberry",         {"es": "Frambuesa",          "en": "Raspberry",        "ru": "Малиновое"}),
+    ("dulce",             {"es": "Dulce de leche",     "en": "Dulce de leche",   "ru": "Дульсе де лече"}),
+    ("chocolate_praline", {"es": "Praliné de chocolate","en": "Chocolate praline","ru": "Шоколадное пралине"}),
+    ("passionfruit",      {"es": "Maracuyá",           "en": "Passion fruit",    "ru": "Маракуйя"}),
+    ("lemon_curd",        {"es": "Curd de limón",      "en": "Lemon curd",       "ru": "Лимонный курд"}),
+    ("cappuccino",        {"es": "Capuchino",          "en": "Cappuccino",       "ru": "Капучино"})
 ]
 
 # PACKAGING
@@ -187,7 +190,7 @@ MENU_ITEMS = [
     {
         "id": "joya_rosa",
         "name": "Joya Rosa",
-        "price": 2700,
+        "price": 7500,
         "desc": {
             "es": "Vainilla con corazón de frutilla y frosting rosa-violeta con perlas doradas.",
             "en": "Vanilla with strawberry heart and pink-violet frosting with golden pearls.",
@@ -198,7 +201,7 @@ MENU_ITEMS = [
     {
         "id": "flor_encanto",
         "name": "Flor de Encanto",
-        "price": 2900,
+        "price": 7500,
         "desc": {
             "es": "Frosting rosa + crema, pétalos cristalizados y flor violeta.",
             "en": "Pink + cream frosting, candied petals and violet flower.",
