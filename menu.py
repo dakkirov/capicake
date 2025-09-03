@@ -531,17 +531,17 @@ with left:
 
         # Col 2 — Base + Filling (codes with localized labels)
         with col_opts:
-            base_code = st.selectbox(
-                t("base"),
-                options=[c for c, _ in BASES],
-                format_func=lambda c: opt_label(BASES, c),
-                key=f"base_{item['id']}"
-            )
             fill_code = st.selectbox(
                 t("filling"),
                 options=[c for c, _ in FILLINGS],
                 format_func=lambda c: opt_label(FILLINGS, c),
                 key=f"fill_{item['id']}"
+            )
+            base_code = st.selectbox(
+                t("base"),
+                options=[c for c, _ in BASES],
+                format_func=lambda c: opt_label(BASES, c),
+                key=f"base_{item['id']}"
             )
 
         # Col 3 — Packaging + Qty + Add
