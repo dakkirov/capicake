@@ -188,58 +188,6 @@ def opt_label(options, code: str) -> str:
 # =========================
 MENU_ITEMS = [
     {
-        "id": "flor_de_rosa",
-        "name": "Flor de Rosa",
-        "price": 8500,
-        "desc": {
-            "es": "Frosting rosa pastel, frutilla fresca y flor en tonos rojos y blancos.",
-            "en": "Pastel pink frosting, fresh strawberry and red-white flower decoration.",
-            "ru": "Пастельно-розовый крем, свежая клубника и цветок в красно-белых тонах.",
-        },
-        "image": "images/rose.png",
-        "default_base": "vanilla",
-        "default_filling": "strawberry_confit",
-    },
-    {
-        "id": "misterio_violeta",
-        "name": "Misterio Violeta",
-        "price": 8500,
-        "desc": {
-            "es": "Red velvet con frosting violeta intenso, flores brillantes y toque elegante.",
-            "en": "Red velvet with deep violet frosting, shiny flowers and elegant finish.",
-            "ru": "Ред велвет с насыщенным фиолетовым кремом, блестящим цветком и утончённым декором.",
-        },
-        "image": "images/velvet.png",
-        "default_base": "red_velvet",
-        "default_filling": "berry",
-    },
-    {
-        "id": "joya_rosa",
-        "name": "Joya Rosa",
-        "price": 7500,
-        "desc": {
-            "es": "Vainilla con corazón de frutilla y frosting rosa-violeta con perlas doradas.",
-            "en": "Vanilla with strawberry heart and pink-violet frosting with golden pearls.",
-            "ru": "Ванильный капкейк с клубничной начинкой и розово-фиолетовым кремом, украшен золотыми шариками.",
-        },
-        "image": "images/joya_rosa.png",
-        "default_base": "vanilla",
-        "default_filling": "strawberry_confit",
-    },
-    {
-        "id": "cielo_dulce",
-        "name": "Cielo Dulce",
-        "price": 7500,
-        "desc": {
-            "es": "Base vainilla con frosting celeste, arándanos frescos y flores perladas.",
-            "en": "Vanilla base with sky-blue frosting, fresh blueberries and pearled flowers.",
-            "ru": "Ванильный капкейк с небесно-голубым кремом, свежими черникой и украшением из жемчужных цветов.",
-        },
-        "image": "images/blue.png",
-        "default_base": "vanilla",
-        "default_filling": "strawberry_confit",
-    },
-    {
         "id": "sol_tropical",
         "name": "Sol Tropical",
         "price": 7500,
@@ -264,6 +212,58 @@ MENU_ITEMS = [
         "image": "images/yellow.png",
         "default_base": "lemon",
         "default_filling": "lemon_curd",
+    },
+    {
+        "id": "misterio_violeta",
+        "name": "Misterio Violeta",
+        "price": 8500,
+        "desc": {
+            "es": "Red velvet con frosting violeta intenso, flores brillantes y toque elegante.",
+            "en": "Red velvet with deep violet frosting, shiny flowers and elegant finish.",
+            "ru": "Ред велвет с насыщенным фиолетовым кремом, блестящим цветком и утончённым декором.",
+        },
+        "image": "images/velvet.png",
+        "default_base": "red_velvet",
+        "default_filling": "berry",
+    },
+    {
+        "id": "flor_de_rosa",
+        "name": "Flor de Rosa",
+        "price": 8500,
+        "desc": {
+            "es": "Frosting rosa pastel, frutilla fresca y flor en tonos rojos y blancos.",
+            "en": "Pastel pink frosting, fresh strawberry and red-white flower decoration.",
+            "ru": "Пастельно-розовый крем, свежая клубника и цветок в красно-белых тонах.",
+        },
+        "image": "images/rose.png",
+        "default_base": "vanilla",
+        "default_filling": "strawberry_confit",
+    },
+    {
+        "id": "cielo_dulce",
+        "name": "Cielo Dulce",
+        "price": 7500,
+        "desc": {
+            "es": "Base vainilla con frosting celeste, arándanos frescos y flores perladas.",
+            "en": "Vanilla base with sky-blue frosting, fresh blueberries and pearled flowers.",
+            "ru": "Ванильный капкейк с небесно-голубым кремом, свежими черникой и украшением из жемчужных цветов.",
+        },
+        "image": "images/blue.png",
+        "default_base": "vanilla",
+        "default_filling": "strawberry_confit",
+    },
+    {
+        "id": "joya_rosa",
+        "name": "Joya Rosa",
+        "price": 7500,
+        "desc": {
+            "es": "Vainilla con corazón de frutilla y frosting rosa-violeta con perlas doradas.",
+            "en": "Vanilla with strawberry heart and pink-violet frosting with golden pearls.",
+            "ru": "Ванильный капкейк с клубничной начинкой и розово-фиолетовым кремом, украшен золотыми шариками.",
+        },
+        "image": "images/joya_rosa.png",
+        "default_base": "vanilla",
+        "default_filling": "strawberry_confit",
     },
 ]
 
