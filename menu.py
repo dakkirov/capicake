@@ -270,15 +270,6 @@ MENU_ITEMS = [
 # =========================
 # HELPERS
 # =========================
-def init_item_defaults():
-    for item in MENU_ITEMS:
-        base_key = f"base_{item['id']}"
-        fill_key = f"fill_{item['id']}"
-        if base_key not in st.session_state:
-            st.session_state[base_key] = item.get("default_base", BASES[0][0])
-        if fill_key not in st.session_state:
-            st.session_state[fill_key] = item.get("default_filling", FILLINGS[0][0])
-
 def ensure_default(key, default_code, options):
     # only set if the widget has never been initialized
     if key not in st.session_state:
@@ -410,6 +401,15 @@ st.markdown("""
 # STATE INIT & TOAST
 # =========================
 init_state()
+
+def init_item_defaults():
+    for item in MENU_ITEMS:
+        base_key = f"base_{item['id']}"
+        fill_key = f"fill_{item['id']}"
+        # set only if missing (don’t reset on reruns or language switches)
+        st.session_state.setdefault(base_key, item.get("default_base", BASES[0][0]))
+        st.session_state.setdefault(fill_key, item.get("default_filling", FILLINGS[0][0]))
+        
 init_item_defaults() 
 
 if "_last_added" in st.session_state:
