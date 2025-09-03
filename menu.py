@@ -62,6 +62,7 @@ TR = {
         "msg_notes": "Notas: {notes}",
         "msg_warn": "⚠️ Elegí Packaging personalizado en algunos ítems. El costo extra se define por WhatsApp según el diseño.",
         "msg_end": "¿Me confirmás disponibilidad y total? ¡Gracias! 🧁",
+        "notice_title": "ℹ️ Diseño artesanal: puede variar",
     },
     "en": {
         "title": "Menu & Order",
@@ -100,6 +101,7 @@ TR = {
         "msg_notes": "Notes: {notes}",
         "msg_warn": "⚠️ I chose custom packaging in some items. Extra cost will be agreed on WhatsApp.",
         "msg_end": "Could you confirm availability and total? Thanks! 🧁",
+        "notice_title": "ℹ️ Handmade design: variations may occur",
     },
     "ru": {
     "title": "Меню и заказ",
@@ -139,6 +141,7 @@ TR = {
     "msg_notes": "Примечания: {notes}",
     "msg_warn": "⚠️ Я выбрал(а) индивидуальную упаковку для некоторых позиций. Доп. стоимость согласуем в WhatsApp.",
     "msg_end": "Подтвердите, пожалуйста, доступность и итоговую стоимость. Спасибо! 🧁",
+    "notice_title": "ℹ️ Ручная работа: возможны отличия",
     },
 }
 
@@ -229,7 +232,7 @@ MENU_ITEMS = [
     {
         "id": "pink_dream",
         "name": "Pink Dream",
-        "price": 8500,
+        "price": 7500,
         # "desc": {
         #     "es": "Frosting rosa pastel, frutilla fresca y flor en tonos rojos y blancos.",
         #     "en": "Pastel pink frosting, fresh strawberry and red-white flower decoration.",
@@ -255,7 +258,7 @@ MENU_ITEMS = [
     {
         "id": "romance",
         "name": "Romance",
-        "price": 7500,
+        "price": 8500,
         # "desc": {
         #     "es": "Vainilla con corazón de frutilla y frosting rosa-violeta con perlas doradas.",
         #     "en": "Vanilla with strawberry heart and pink-violet frosting with golden pearls.",
@@ -549,6 +552,7 @@ with right:
 
 # -------- LEFT: MENU — 1 product per row (Col1: Photo | Col2: Base+Filling | Col3: Packaging+Qty+Button) --------
 with left:
+    st.info(t("notice_body"))
     for item in MENU_ITEMS:
         st.subheader(item["name"])
         # st.caption(item["desc"][lang()])
