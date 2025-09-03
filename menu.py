@@ -551,7 +551,7 @@ with right:
 with left:
     for item in MENU_ITEMS:
         st.subheader(item["name"])
-        st.caption(item["desc"][lang()])
+        # st.caption(item["desc"][lang()])
 
         # layout: image | options | action
         col_img, col_opts, col_action = st.columns([0.8, 1.4, 1.2], gap="large")
