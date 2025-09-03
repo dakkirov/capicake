@@ -552,7 +552,7 @@ with right:
 
 # -------- LEFT: MENU — 1 product per row (Col1: Photo | Col2: Base+Filling | Col3: Packaging+Qty+Button) --------
 with left:
-    st.info(t("notice_body"))
+    st.info(t("notice_title"))
     for item in MENU_ITEMS:
         st.subheader(item["name"])
         # st.caption(item["desc"][lang()])
