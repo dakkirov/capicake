@@ -492,7 +492,7 @@ with right:
                 fill_label = opt_label(FILLINGS, fill_code)
                 pack_label = PACK_LABELS[pack_code][lang()]
 
-                c1, c2 = st.columns([3, 2], gap="large")  # single nesting level
+                c1, c2 = st.columns([1, 2], gap="large")  # single nesting level
                 with c1:
                     if item.get("image") and os.path.exists(item["image"]):
                         st.image(item["image"], use_container_width=True)
