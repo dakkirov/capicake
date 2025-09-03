@@ -554,7 +554,7 @@ with left:
         st.caption(item["desc"][lang()])
 
         # layout: image | options | action
-        col_img, col_opts, col_action = st.columns([0.55, 1.4, 1.2], gap="large")
+        col_img, col_opts, col_action = st.columns([0.8, 1.4, 1.2], gap="large")
 
         # Col 1 — Photo
         with col_img:
