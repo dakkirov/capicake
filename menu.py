@@ -330,13 +330,10 @@ def code_index(options, code, fallback_code=None):
     return 0
 
 def init_item_defaults_once():
-    # run exactly once per session
     if not st.session_state.get("_defaults_seeded", False):
-        for item in MENU_ITEMS:
-            base_key = f"base_{item['id']}"
-            fill_key = f"fill_{item['id']}"
-            st.session_state.setdefault(base_key, item.get("default_base", BASES[0][0]))
-            st.session_state.setdefault(fill_key, item.get("default_filling", FILLINGS[0][0]))
+        for it in MENU_ITEMS:
+            st.session_state.setdefault(f"base_{it['id']}", it.get("default_base", BASES[0][0]))
+            st.session_state.setdefault(f"fill_{it['id']}", it.get("default_filling", FILLINGS[0][0]))
         st.session_state["_defaults_seeded"] = True
 
 # =========================
@@ -553,58 +550,61 @@ with right:
 # -------- LEFT: MENU — 1 product per row (Col1: Photo | Col2: Base+Filling | Col3: Packaging+Qty+Button) --------
 with left:
     for item in MENU_ITEMS:
-        # Row header (name + localized desc)
         st.subheader(item["name"])
         st.caption(item["desc"][lang()])
 
-        col_img, col_opts, col_action = st.columns([0.55, 1.4, 1.2], gap="large")
+        # layout: image | options | action
+        col_img, col_opts, col_action = st.columns([0.7, 1.4, 1.1], gap="large")
 
         # Col 1 — Photo
         with col_img:
             if item.get("image") and os.path.exists(item["image"]):
-                st.image(item["image"], use_container_width=True)
+                st.image(item["image"], width=IMG_WIDTH)
             else:
                 st.markdown("🧁")
 
-        # Col 2 — Base + Filling (codes with localized labels)
+        # --- Col 2 — Base + Filling (language-proof, per-item state) ---
         with col_opts:
-            base_state_key = f"base_{item['id']}"       # our canonical state
-            fill_state_key = f"fill_{item['id']}"       # our canonical state
-            base_widget_key = f"{base_state_key}_w"     # widget’s own key
-            fill_widget_key = f"{fill_state_key}_w"     # widget’s own key
-        
+            base_state_key = f"base_{item['id']}"       # canonical state for base
+            fill_state_key = f"fill_{item['id']}"       # canonical state for filling
+            base_widget_key = f"{base_state_key}_w"     # widget key (separate)
+            fill_widget_key = f"{fill_state_key}_w"     # widget key (separate)
+
             base_options = [c for c, _ in BASES]
             fill_options = [c for c, _ in FILLINGS]
-        
-            # Compute desired initial indices from our canonical state
+
+            # compute indices from canonical state
             def idx(opts, code): 
                 return opts.index(code) if code in opts else 0
-        
+
             base_idx = idx(base_options, st.session_state.get(base_state_key, base_options[0]))
             fill_idx = idx(fill_options, st.session_state.get(fill_state_key, fill_options[0]))
-        
-            # Render widgets with their own keys; index is driven by our state
-            base_selected = st.selectbox(
+
+            # render widgets bound to their own keys
+            st.selectbox(
                 t("base"),
                 options=base_options,
                 index=base_idx,
                 format_func=lambda c: opt_label(BASES, c),
                 key=base_widget_key
             )
-            fill_selected = st.selectbox(
+            st.selectbox(
                 t("filling"),
                 options=fill_options,
                 index=fill_idx,
                 format_func=lambda c: opt_label(FILLINGS, c),
                 key=fill_widget_key
             )
-        
-            # Mirror widget value back to our canonical per-item state
-            st.session_state[base_state_key] = base_selected
-            st.session_state[fill_state_key] = fill_selected
 
+            # mirror widget values back to canonical per-item state
+            st.session_state[base_state_key] = st.session_state[base_widget_key]
+            st.session_state[fill_state_key] = st.session_state[fill_widget_key]
 
-        # Col 3 — Packaging + Qty + Add
+            # define the variables used later by the Add-to-cart button
+            base_code = st.session_state[base_state_key]
+            fill_code = st.session_state[fill_state_key]
+
+        # --- Col 3 — Packaging + Qty + Add ---
         with col_action:
             pack_code = st.radio(
                 t("packaging"),
@@ -615,12 +615,13 @@ with left:
             )
             if pack_code == "custom":
                 st.caption(t("pack_note"))
+
             qty_val = st.number_input(t("qty6"), min_value=6, value=6, step=1, key=f"qty_{item['id']}")
             st.write(f"**{ars(item['price'])}** {t('unit_price')}")
+
             if st.button(t("add_to_cart"), key=f"add_{item['id']}"):
-                key = cart_key(item["id"], base_code, fill_code, pack_code)
+                key = cart_key(item["id"], base_code, fill_code, pack_code)  # <-- now defined
                 add_to_cart(key, qty_val)
                 st.session_state._last_added = (item["name"], qty_val)
                 st.rerun()
 
-        st.divider()
