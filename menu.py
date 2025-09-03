@@ -554,12 +554,12 @@ with left:
         st.caption(item["desc"][lang()])
 
         # layout: image | options | action
-        col_img, col_opts, col_action = st.columns([0.7, 1.4, 1.1], gap="large")
+        col_img, col_opts, col_action = st.columns([0.55, 1.4, 1.2], gap="large")
 
         # Col 1 — Photo
         with col_img:
             if item.get("image") and os.path.exists(item["image"]):
-                st.image(item["image"], width=IMG_WIDTH)
+                st.image(item["image"], use_container_width=True)
             else:
                 st.markdown("🧁")
 
