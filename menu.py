@@ -228,7 +228,7 @@ MENU_ITEMS = [
     },
     {
         "id": "sweet_dream",
-        "name": "Sweer Dream",
+        "name": "Sweet Dream",
         "price": 8500,
         # "desc": {
         #     "es": "Frosting rosa pastel, frutilla fresca y flor en tonos rojos y blancos.",
