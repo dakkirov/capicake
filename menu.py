@@ -520,7 +520,7 @@ with left:
         st.subheader(item["name"])
         st.caption(item["desc"][lang()])
 
-        col_img, col_opts, col_action = st.columns([1, 1.2, 1.1], gap="large")
+        col_img, col_opts, col_action = st.columns([0.6, 1.4, 1.2], gap="large")
 
         # Col 1 — Photo
         with col_img:
