@@ -329,6 +329,16 @@ def code_index(options, code, fallback_code=None):
         return codes.index(fallback_code)
     return 0
 
+def init_item_defaults_once():
+    # run exactly once per session
+    if not st.session_state.get("_defaults_seeded", False):
+        for item in MENU_ITEMS:
+            base_key = f"base_{item['id']}"
+            fill_key = f"fill_{item['id']}"
+            st.session_state.setdefault(base_key, item.get("default_base", BASES[0][0]))
+            st.session_state.setdefault(fill_key, item.get("default_filling", FILLINGS[0][0]))
+        st.session_state["_defaults_seeded"] = True
+
 # =========================
 # STYLES (Light look + white text buttons + big subtotal)
 # =========================
@@ -401,16 +411,7 @@ st.markdown("""
 # STATE INIT & TOAST
 # =========================
 init_state()
-
-def init_item_defaults():
-    for item in MENU_ITEMS:
-        base_key = f"base_{item['id']}"
-        fill_key = f"fill_{item['id']}"
-        # set only if missing (don’t reset on reruns or language switches)
-        st.session_state.setdefault(base_key, item.get("default_base", BASES[0][0]))
-        st.session_state.setdefault(fill_key, item.get("default_filling", FILLINGS[0][0]))
-        
-init_item_defaults() 
+init_item_defaults_once() 
 
 if "_last_added" in st.session_state:
     name, q = st.session_state.pop("_last_added")
@@ -567,24 +568,41 @@ with left:
 
         # Col 2 — Base + Filling (codes with localized labels)
         with col_opts:
-            base_key = f"base_{item['id']}"
-            fill_key = f"fill_{item['id']}"
+            base_state_key = f"base_{item['id']}"       # our canonical state
+            fill_state_key = f"fill_{item['id']}"       # our canonical state
+            base_widget_key = f"{base_state_key}_w"     # widget’s own key
+            fill_widget_key = f"{fill_state_key}_w"     # widget’s own key
         
             base_options = [c for c, _ in BASES]
             fill_options = [c for c, _ in FILLINGS]
         
-            base_code = st.selectbox(
+            # Compute desired initial indices from our canonical state
+            def idx(opts, code): 
+                return opts.index(code) if code in opts else 0
+        
+            base_idx = idx(base_options, st.session_state.get(base_state_key, base_options[0]))
+            fill_idx = idx(fill_options, st.session_state.get(fill_state_key, fill_options[0]))
+        
+            # Render widgets with their own keys; index is driven by our state
+            base_selected = st.selectbox(
                 t("base"),
                 options=base_options,
+                index=base_idx,
                 format_func=lambda c: opt_label(BASES, c),
-                key=base_key
+                key=base_widget_key
             )
-            fill_code = st.selectbox(
+            fill_selected = st.selectbox(
                 t("filling"),
                 options=fill_options,
+                index=fill_idx,
                 format_func=lambda c: opt_label(FILLINGS, c),
-                key=fill_key
+                key=fill_widget_key
             )
+        
+            # Mirror widget value back to our canonical per-item state
+            st.session_state[base_state_key] = base_selected
+            st.session_state[fill_state_key] = fill_selected
+
 
         # Col 3 — Packaging + Qty + Add
         with col_action:
