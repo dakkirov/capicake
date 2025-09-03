@@ -145,10 +145,10 @@ TR = {
 # BASES
 # бисквит: ванильный, шоколадный, морковный, ред вельвет, лимонный
 BASES = [
-    ("red_velvet", {"es": "Red velvet", "en": "Red velvet", "ru": "Ред велвет (красный бархат)"}),
+    ("red_velvet", {"es": "Red velvet", "en": "Red velvet", "ru": "Красный бархат"}),
     ("chocolate",  {"es": "Chocolate", "en": "Chocolate", "ru": "Шоколадный"}),
     ("vanilla",    {"es": "Vainilla", "en": "Vanilla",   "ru": "Ванильный"}),
-    ("carrot",     {"es": "Zanahoria", "en": "Carrot",   "ru": "Морковный"}),
+    ("carrot",     {"es": "Carrot cake", "en": "Carrot",   "ru": "Морковный"}),
     ("lemon",      {"es": "Limón",     "en": "Lemon",    "ru": "Лимонный"})
 ]
 
@@ -270,6 +270,11 @@ MENU_ITEMS = [
 # =========================
 # HELPERS
 # =========================
+def ensure_default(key, default_code, options):
+    # only set if the widget has never been initialized
+    if key not in st.session_state:
+        st.session_state[key] = default_code if default_code in options else options[0]
+
 def ars(n: float) -> str:
     return f"{CURRENCY}{n:,.0f}".replace(",", ".")
 
@@ -557,16 +562,9 @@ with left:
             base_options = [c for c, _ in BASES]
             fill_options = [c for c, _ in FILLINGS]
         
-            def ensure_default(key, default_code, options):
-                # Set only once, or if stored value is no longer valid
-                if key not in st.session_state or st.session_state[key] not in options:
-                    st.session_state[key] = default_code if default_code in options else options[0]
+            ensure_default(base_key, item.get("default_base", base_options[0]), base_options)
+            ensure_default(fill_key, item.get("default_filling", fill_options[0]), fill_options)
         
-            # Use per-item defaults if provided; otherwise fall back to first option
-            ensure_default(base_key,  item.get("default_base", base_options[0]),  base_options)
-            ensure_default(fill_key,  item.get("default_filling", fill_options[0]), fill_options)
-        
-            # Now render widgets WITHOUT index — they’ll use the seeded session values
             base_code = st.selectbox(
                 t("base"),
                 options=base_options,
