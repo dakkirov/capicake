@@ -270,6 +270,15 @@ MENU_ITEMS = [
 # =========================
 # HELPERS
 # =========================
+def init_item_defaults():
+    for item in MENU_ITEMS:
+        base_key = f"base_{item['id']}"
+        fill_key = f"fill_{item['id']}"
+        if base_key not in st.session_state:
+            st.session_state[base_key] = item.get("default_base", BASES[0][0])
+        if fill_key not in st.session_state:
+            st.session_state[fill_key] = item.get("default_filling", FILLINGS[0][0])
+
 def ensure_default(key, default_code, options):
     # only set if the widget has never been initialized
     if key not in st.session_state:
@@ -401,6 +410,8 @@ st.markdown("""
 # STATE INIT & TOAST
 # =========================
 init_state()
+init_item_defaults() 
+
 if "_last_added" in st.session_state:
     name, q = st.session_state.pop("_last_added")
     try:
@@ -562,13 +573,6 @@ with left:
             base_options = [c for c, _ in BASES]
             fill_options = [c for c, _ in FILLINGS]
         
-            # 1) Seed defaults ONLY if missing (never overwrite on reruns)
-            if base_key not in st.session_state:
-                st.session_state[base_key] = item.get("default_base", base_options[0])
-            if fill_key not in st.session_state:
-                st.session_state[fill_key] = item.get("default_filling", fill_options[0])
-        
-            # 2) Render WITHOUT index/value; the widget will use the value from session_state[key]
             base_code = st.selectbox(
                 t("base"),
                 options=base_options,
@@ -581,7 +585,6 @@ with left:
                 format_func=lambda c: opt_label(FILLINGS, c),
                 key=fill_key
             )
-
 
         # Col 3 — Packaging + Qty + Add
         with col_action:
