@@ -26,7 +26,7 @@ LANGS = {
 
 TR = {
     "es": {
-        "title": "Capicake — Menú & Pedido",
+        "title": "Menú & Pedido",
         "subtitle": "Elegí tus cupcakes, armá el carrito y enviá el pedido por WhatsApp en 1 click.",
         "cart": "Tu Carrito",
         "empty_cart": "Tu carrito está vacío.",
@@ -64,7 +64,7 @@ TR = {
         "msg_end": "¿Me confirmás disponibilidad y total? ¡Gracias! 🧁",
     },
     "en": {
-        "title": "Capicake — Menu & Order",
+        "title": "Menu & Order",
         "subtitle": "Pick your cupcakes, build the cart and send your order via WhatsApp in 1 click.",
         "cart": "Your Cart",
         "empty_cart": "Your cart is empty.",
@@ -102,7 +102,7 @@ TR = {
         "msg_end": "Could you confirm availability and total? Thanks! 🧁",
     },
     "ru": {
-    "title": "Capicake — Меню и заказ",
+    "title": "Меню и заказ",
     "subtitle": "Выберите капкейки, соберите корзину и отправьте заказ в WhatsApp в один клик.",
     "cart": "Ваша корзина",
     "empty_cart": "Ваша корзина пуста.",
