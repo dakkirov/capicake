@@ -188,6 +188,28 @@ def opt_label(options, code: str) -> str:
 # =========================
 MENU_ITEMS = [
     {
+        "id": "flor_de_rosa",
+        "name": "Flor de Rosa",
+        "price": 8500,
+        "desc": {
+            "es": "Frosting rosa pastel, frutilla fresca y flor en tonos rojos y blancos.",
+            "en": "Pastel pink frosting, fresh strawberry and red-white flower decoration.",
+            "ru": "Пастельно-розовый крем, свежая клубника и цветок в красно-белых тонах.",
+        },
+        "image": "images/rose.png",
+    },
+    {
+        "id": "misterio_violeta",
+        "name": "Misterio Violeta",
+        "price": 8500,
+        "desc": {
+            "es": "Red velvet con frosting violeta intenso, flores brillantes y toque elegante.",
+            "en": "Red velvet with deep violet frosting, shiny flowers and elegant finish.",
+            "ru": "Ред велвет с насыщенным фиолетовым кремом, блестящим цветком и утончённым декором.",
+        },
+        "image": "images/velvet.png",
+    },
+    {
         "id": "joya_rosa",
         "name": "Joya Rosa",
         "price": 7500,
@@ -199,17 +221,40 @@ MENU_ITEMS = [
         "image": "images/joya_rosa.png",
     },
     {
-        "id": "flor_encanto",
-        "name": "Flor de Encanto",
+        "id": "cielo_dulce",
+        "name": "Cielo Dulce",
         "price": 7500,
         "desc": {
-            "es": "Frosting rosa + crema, pétalos cristalizados y flor violeta.",
-            "en": "Pink + cream frosting, candied petals and violet flower.",
-            "ru": "Крем розового и сливочного оттенков, засахаренные лепестки и фиолетовый цветок.",
+            "es": "Base vainilla con frosting celeste, arándanos frescos y flores perladas.",
+            "en": "Vanilla base with sky-blue frosting, fresh blueberries and pearled flowers.",
+            "ru": "Ванильный капкейк с небесно-голубым кремом, свежими черникой и украшением из жемчужных цветов.",
         },
-        "image": None,
+        "image": "images/blue.png",
+    },
+    {
+        "id": "sol_tropical",
+        "name": "Sol Tropical",
+        "price": 7500,
+        "desc": {
+            "es": "Cremoso frosting naranja con frambuesa fresca, notas cítricas y perlas brillantes.",
+            "en": "Creamy orange frosting with fresh raspberry, citrus notes and shiny pearls.",
+            "ru": "Крем насыщенного оранжевого цвета с малиной, цитрусовыми нотами и блестящими шариками.",
+        },
+        "image": "images/orange.png",
+    },
+    {
+        "id": "amanecer_dorado",
+        "name": "Amanecer Dorado",
+        "price": 7500,
+        "desc": {
+            "es": "Base de vainilla con frosting amarillo, frutilla fresca y flores soleadas.",
+            "en": "Vanilla base with yellow frosting, fresh strawberry and sunny flowers.",
+            "ru": "Ванильный капкейк с жёлтым кремом, свежей клубникой и солнечным цветком.",
+        },
+        "image": "images/yellow.png",
     },
 ]
+
 # =========================
 # HELPERS
 # =========================
