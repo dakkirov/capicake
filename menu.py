@@ -562,20 +562,26 @@ with left:
             base_options = [c for c, _ in BASES]
             fill_options = [c for c, _ in FILLINGS]
         
-            ensure_default(base_key, item.get("default_base", base_options[0]), base_options)
-            ensure_default(fill_key, item.get("default_filling", fill_options[0]), fill_options)
+            # Initialize once if not present
+            if base_key not in st.session_state:
+                st.session_state[base_key] = item.get("default_base", base_options[0])
+            if fill_key not in st.session_state:
+                st.session_state[fill_key] = item.get("default_filling", fill_options[0])
         
             base_code = st.selectbox(
                 t("base"),
                 options=base_options,
                 format_func=lambda c: opt_label(BASES, c),
-                key=base_key
+                key=base_key,
+                value=st.session_state[base_key],   # <-- crucial: bind by value
             )
+        
             fill_code = st.selectbox(
                 t("filling"),
                 options=fill_options,
                 format_func=lambda c: opt_label(FILLINGS, c),
-                key=fill_key
+                key=fill_key,
+                value=st.session_state[fill_key],   # <-- crucial
             )
 
 
