@@ -525,7 +525,7 @@ with left:
         # Col 1 — Photo
         with col_img:
             if item.get("image") and os.path.exists(item["image"]):
-                st.image(item["image"], use_container_width=False)
+                st.image(item["image"], use_container_width=False, width=120)
             else:
                 st.markdown("🧁")
 
