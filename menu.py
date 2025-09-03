@@ -156,7 +156,7 @@ BASES = [
 # начинка клубничное конфи, малиновое, дульсе де лече, шоколадное пралине, маракуйя, лимонный курд, капучино
 FILLINGS = [
     ("strawberry_confit", {"es": "Confit de frutilla", "en": "Strawberry confit", "ru": "Клубничное конфи"}),
-    ("raspberry",         {"es": "Frambuesa",          "en": "Raspberry",        "ru": "Малиновое"}),
+    ("berry",             {"es": "Frutos rojos",        "en": "Berry mix",        "ru": "Ягодная"}),
     ("dulce",             {"es": "Dulce de leche",     "en": "Dulce de leche",   "ru": "Дульсе де лече"}),
     ("chocolate_praline", {"es": "Praliné de chocolate","en": "Chocolate praline","ru": "Шоколадное пралине"}),
     ("passionfruit",      {"es": "Maracuyá",           "en": "Passion fruit",    "ru": "Маракуйя"}),
@@ -197,6 +197,8 @@ MENU_ITEMS = [
             "ru": "Пастельно-розовый крем, свежая клубника и цветок в красно-белых тонах.",
         },
         "image": "images/rose.png",
+        "default_base": "vanilla",
+        "default_filling": "strawberry_confit",
     },
     {
         "id": "misterio_violeta",
@@ -208,6 +210,8 @@ MENU_ITEMS = [
             "ru": "Ред велвет с насыщенным фиолетовым кремом, блестящим цветком и утончённым декором.",
         },
         "image": "images/velvet.png",
+        "default_base": "red_velvet",
+        "default_filling": "berry",
     },
     {
         "id": "joya_rosa",
@@ -219,6 +223,8 @@ MENU_ITEMS = [
             "ru": "Ванильный капкейк с клубничной начинкой и розово-фиолетовым кремом, украшен золотыми шариками.",
         },
         "image": "images/joya_rosa.png",
+        "default_base": "vanilla",
+        "default_filling": "strawberry_confit",
     },
     {
         "id": "cielo_dulce",
@@ -230,6 +236,8 @@ MENU_ITEMS = [
             "ru": "Ванильный капкейк с небесно-голубым кремом, свежими черникой и украшением из жемчужных цветов.",
         },
         "image": "images/blue.png",
+        "default_base": "vanilla",
+        "default_filling": "strawberry_confit",
     },
     {
         "id": "sol_tropical",
@@ -241,6 +249,8 @@ MENU_ITEMS = [
             "ru": "Крем насыщенного оранжевого цвета с малиной, цитрусовыми нотами и блестящими шариками.",
         },
         "image": "images/orange.png",
+        "default_base": "carrot",
+        "default_filling": "passionfruit",
     },
     {
         "id": "amanecer_dorado",
@@ -252,6 +262,8 @@ MENU_ITEMS = [
             "ru": "Ванильный капкейк с жёлтым кремом, свежей клубникой и солнечным цветком.",
         },
         "image": "images/yellow.png",
+        "default_base": "lemon",
+        "default_filling": "lemon_curd",
     },
 ]
 
@@ -303,6 +315,14 @@ def build_message(cart_lines, subtotal, buyer, modality_label, when_txt, address
 
 def whatsapp_url(message: str) -> str:
     return f"https://wa.me/{BUSINESS_PHONE}?text={quote_plus(message)}"
+
+def code_index(options, code, fallback_code=None):
+    codes = [c for c, _ in options]
+    if code in codes:
+        return codes.index(code)
+    if fallback_code and fallback_code in codes:
+        return codes.index(fallback_code)
+    return 0
 
 # =========================
 # STYLES (Light look + white text buttons + big subtotal)
@@ -531,17 +551,35 @@ with left:
 
         # Col 2 — Base + Filling (codes with localized labels)
         with col_opts:
-            fill_code = st.selectbox(
-                t("filling"),
-                options=[c for c, _ in FILLINGS],
-                format_func=lambda c: opt_label(FILLINGS, c),
-                key=f"fill_{item['id']}"
-            )
+            base_key = f"base_{item['id']}"
+            fill_key = f"fill_{item['id']}"
+        
+            # Initialize session defaults once
+            if base_key not in st.session_state:
+                st.session_state[base_key] = item.get("default_base", BASES[0][0])
+            if fill_key not in st.session_state:
+                st.session_state[fill_key] = item.get("default_filling", FILLINGS[0][0])
+        
+            base_options = [c for c, _ in BASES]
+            fill_options = [c for c, _ in FILLINGS]
+        
+            base_idx = code_index(BASES, st.session_state[base_key], fallback_code=BASES[0][0])
+            fill_idx = code_index(FILLINGS, st.session_state[fill_key], fallback_code=FILLINGS[0][0])
+        
             base_code = st.selectbox(
                 t("base"),
-                options=[c for c, _ in BASES],
+                options=base_options,
+                index=base_idx,
                 format_func=lambda c: opt_label(BASES, c),
-                key=f"base_{item['id']}"
+                key=base_key
+            )
+        
+            fill_code = st.selectbox(
+                t("filling"),
+                options=fill_options,
+                index=fill_idx,
+                format_func=lambda c: opt_label(FILLINGS, c),
+                key=fill_key
             )
 
         # Col 3 — Packaging + Qty + Add
