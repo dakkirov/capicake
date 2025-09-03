@@ -554,33 +554,32 @@ with left:
             base_key = f"base_{item['id']}"
             fill_key = f"fill_{item['id']}"
         
-            # Initialize session defaults once
-            if base_key not in st.session_state:
-                st.session_state[base_key] = item.get("default_base", BASES[0][0])
-            if fill_key not in st.session_state:
-                st.session_state[fill_key] = item.get("default_filling", FILLINGS[0][0])
-        
             base_options = [c for c, _ in BASES]
             fill_options = [c for c, _ in FILLINGS]
         
-            base_idx = code_index(BASES, st.session_state[base_key], fallback_code=BASES[0][0])
-            fill_idx = code_index(FILLINGS, st.session_state[fill_key], fallback_code=FILLINGS[0][0])
+            def ensure_default(key, default_code, options):
+                # Set only once, or if stored value is no longer valid
+                if key not in st.session_state or st.session_state[key] not in options:
+                    st.session_state[key] = default_code if default_code in options else options[0]
         
+            # Use per-item defaults if provided; otherwise fall back to first option
+            ensure_default(base_key,  item.get("default_base", base_options[0]),  base_options)
+            ensure_default(fill_key,  item.get("default_filling", fill_options[0]), fill_options)
+        
+            # Now render widgets WITHOUT index — they’ll use the seeded session values
             base_code = st.selectbox(
                 t("base"),
                 options=base_options,
-                index=base_idx,
                 format_func=lambda c: opt_label(BASES, c),
                 key=base_key
             )
-        
             fill_code = st.selectbox(
                 t("filling"),
                 options=fill_options,
-                index=fill_idx,
                 format_func=lambda c: opt_label(FILLINGS, c),
                 key=fill_key
             )
+
 
         # Col 3 — Packaging + Qty + Add
         with col_action:
