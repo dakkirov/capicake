@@ -219,7 +219,7 @@ MENU_ITEMS = [
     {
         "id": "velvet_bloom",
         "name": "Velvet Bloom",
-        "price": 8500,
+        "price": 7500,
         # "desc": {
         #     "es": "Red velvet con frosting violeta intenso, flores brillantes y toque elegante.",
         #     "en": "Red velvet with deep violet frosting, shiny flowers and elegant finish.",
@@ -258,7 +258,7 @@ MENU_ITEMS = [
     {
         "id": "romance",
         "name": "Romance",
-        "price": 8500,
+        "price": 7500,
         # "desc": {
         #     "es": "Vainilla con corazón de frutilla y frosting rosa-violeta con perlas doradas.",
         #     "en": "Vanilla with strawberry heart and pink-violet frosting with golden pearls.",
