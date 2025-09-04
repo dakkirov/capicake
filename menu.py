@@ -724,7 +724,7 @@ with right:
     notes = st.text_area(t("notes"),
                          placeholder=("Ej: Sin frutos secos" if lang()=="es" else "E.g., no nuts"))
 
-    st.divider()
+    # st.divider()
     if cart_lines:
         msg = build_message(cart_lines, subtotal, buyer, modality_label, when_txt, address, notes, custom_pack_flag)
         st.markdown(
