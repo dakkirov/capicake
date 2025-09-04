@@ -250,15 +250,25 @@ MENU_ITEMS = [
 # =========================
 # HELPERS
 # =========================
+MOBILE_BREAKPOINT = 768  # keep your constant
+
 def is_mobile_view() -> bool:
-    """Manual toggle OR auto-detect via JS (if available)."""
+    """Manual toggle OR auto-detect (value captured once and stored in session)."""
     manual = st.session_state.get("mobile_layout", False)
-    auto = False
-    if streamlit_js_eval:
-        w = streamlit_js_eval(js_expressions='window.innerWidth', key='VW', want_output=True)
-        if isinstance(w, (int, float)):
-            auto = w <= MOBILE_BREAKPOINT
+    vw = st.session_state.get("_viewport_w")  # set elsewhere exactly once
+    auto = (vw is not None and vw <= MOBILE_BREAKPOINT)
     return manual or auto
+
+# ---- Viewport capture: create ONE component instance per run ----
+if streamlit_js_eval:
+    vw = streamlit_js_eval(
+        js_expressions='window.innerWidth', 
+        key='VW', 
+        want_output=True
+    )
+    # On the very first run vw can be None; on rerun it becomes an int
+    if isinstance(vw, (int, float)):
+        st.session_state["_viewport_w"] = int(vw)
 
 def ars(n: float) -> str:
     return f"{CURRENCY}{n:,.0f}".replace(",", ".")
@@ -571,135 +581,68 @@ with left:
 
     for item in MENU_ITEMS:
         st.subheader(item["name"])
+        # ---------- DESKTOP: 3 columns (image | options | action) ----------
+        col_img, col_opts, col_action = st.columns([0.8, 1.4, 1.2], gap="large")
 
-        if mobile:
-            # ---------- MOBILE: 2 columns (image | controls stacked) ----------
-            col_img, col_right = st.columns([0.01, 0.75], gap="small")
+        with col_img:
+            if item.get("image") and os.path.exists(item["image"]):
+                st.image(item["image"], width=IMG_W_DESKTOP)
+            else:
+                st.markdown("🧁")
 
-            with col_img:
-                if item.get("image") and os.path.exists(item["image"]):
-                    st.image(item["image"], width=IMG_W_MOBILE)
-                else:
-                    st.markdown("🧁")
+        with col_opts:
+            base_state_key = f"base_{item['id']}"
+            fill_state_key = f"fill_{item['id']}"
+            base_widget_key = f"{base_state_key}_w"
+            fill_widget_key = f"{fill_state_key}_w"
 
-            with col_right:
-                # Base + Filling (language-proof, per-item state via dedicated widget keys)
-                base_state_key = f"base_{item['id']}"
-                fill_state_key = f"fill_{item['id']}"
-                base_widget_key = f"{base_state_key}_w"
-                fill_widget_key = f"{fill_state_key}_w"
+            base_options = [c for c, _ in BASES]
+            fill_options = [c for c, _ in FILLINGS]
 
-                base_options = [c for c, _ in BASES]
-                fill_options = [c for c, _ in FILLINGS]
+            def idx(opts, code):
+                return opts.index(code) if code in opts else 0
 
-                def idx(opts, code):
-                    return opts.index(code) if code in opts else 0
+            base_idx = idx(base_options, st.session_state.get(base_state_key, base_options[0]))
+            fill_idx = idx(fill_options, st.session_state.get(fill_state_key, fill_options[0]))
 
-                base_idx = idx(base_options, st.session_state.get(base_state_key, base_options[0]))
-                fill_idx = idx(fill_options, st.session_state.get(fill_state_key, fill_options[0]))
+            st.selectbox(
+                t("base"),
+                options=base_options,
+                index=base_idx,
+                format_func=lambda c: opt_label(BASES, c),
+                key=base_widget_key
+            )
+            st.selectbox(
+                t("filling"),
+                options=fill_options,
+                index=fill_idx,
+                format_func=lambda c: opt_label(FILLINGS, c),
+                key=fill_widget_key
+            )
 
-                st.selectbox(
-                    t("base"),
-                    options=base_options,
-                    index=base_idx,
-                    format_func=lambda c: opt_label(BASES, c),
-                    key=base_widget_key
-                )
-                st.selectbox(
-                    t("filling"),
-                    options=fill_options,
-                    index=fill_idx,
-                    format_func=lambda c: opt_label(FILLINGS, c),
-                    key=fill_widget_key
-                )
+            st.session_state[base_state_key] = st.session_state[base_widget_key]
+            st.session_state[fill_state_key] = st.session_state[fill_widget_key]
+            base_code = st.session_state[base_state_key]
+            fill_code = st.session_state[fill_state_key]
 
-                st.session_state[base_state_key] = st.session_state[base_widget_key]
-                st.session_state[fill_state_key] = st.session_state[fill_widget_key]
-                base_code = st.session_state[base_state_key]
-                fill_code = st.session_state[fill_state_key]
+        with col_action:
+            pack_code = st.radio(
+                t("packaging"),
+                options=["standard", "custom"],
+                horizontal=True,
+                format_func=lambda c: PACK_LABELS[c][lang()],
+                key=f"pack_{item['id']}"
+            )
+            if pack_code == "custom":
+                st.caption(t("pack_note"))
 
-                pack_code = st.radio(
-                    t("packaging"),
-                    options=["standard", "custom"],
-                    horizontal=True,
-                    format_func=lambda c: PACK_LABELS[c][lang()],
-                    key=f"pack_{item['id']}"
-                )
-                if pack_code == "custom":
-                    st.caption(t("pack_note"))
+            qty_val = st.number_input(t("qty6"), min_value=6, value=6, step=1, key=f"qty_{item['id']}")
+            st.write(f"**{ars(item['price'])}** {t('unit_price')}")
 
-                qty_val = st.number_input(t("qty6"), min_value=6, value=6, step=1, key=f"qty_{item['id']}")
-                st.write(f"**{ars(item['price'])}** {t('unit_price')}")
-
-                if st.button(t("add_to_cart"), key=f"add_{item['id']}"):
-                    key = cart_key(item["id"], base_code, fill_code, pack_code)
-                    add_to_cart(key, qty_val)
-                    st.session_state._last_added = (item["name"], qty_val)
-                    st.rerun()
-
-        else:
-            # ---------- DESKTOP: 3 columns (image | options | action) ----------
-            col_img, col_opts, col_action = st.columns([0.8, 1.4, 1.2], gap="large")
-
-            with col_img:
-                if item.get("image") and os.path.exists(item["image"]):
-                    st.image(item["image"], width=IMG_W_DESKTOP)
-                else:
-                    st.markdown("🧁")
-
-            with col_opts:
-                base_state_key = f"base_{item['id']}"
-                fill_state_key = f"fill_{item['id']}"
-                base_widget_key = f"{base_state_key}_w"
-                fill_widget_key = f"{fill_state_key}_w"
-
-                base_options = [c for c, _ in BASES]
-                fill_options = [c for c, _ in FILLINGS]
-
-                def idx(opts, code):
-                    return opts.index(code) if code in opts else 0
-
-                base_idx = idx(base_options, st.session_state.get(base_state_key, base_options[0]))
-                fill_idx = idx(fill_options, st.session_state.get(fill_state_key, fill_options[0]))
-
-                st.selectbox(
-                    t("base"),
-                    options=base_options,
-                    index=base_idx,
-                    format_func=lambda c: opt_label(BASES, c),
-                    key=base_widget_key
-                )
-                st.selectbox(
-                    t("filling"),
-                    options=fill_options,
-                    index=fill_idx,
-                    format_func=lambda c: opt_label(FILLINGS, c),
-                    key=fill_widget_key
-                )
-
-                st.session_state[base_state_key] = st.session_state[base_widget_key]
-                st.session_state[fill_state_key] = st.session_state[fill_widget_key]
-                base_code = st.session_state[base_state_key]
-                fill_code = st.session_state[fill_state_key]
-
-            with col_action:
-                pack_code = st.radio(
-                    t("packaging"),
-                    options=["standard", "custom"],
-                    horizontal=True,
-                    format_func=lambda c: PACK_LABELS[c][lang()],
-                    key=f"pack_{item['id']}"
-                )
-                if pack_code == "custom":
-                    st.caption(t("pack_note"))
-
-                qty_val = st.number_input(t("qty6"), min_value=6, value=6, step=1, key=f"qty_{item['id']}")
-                st.write(f"**{ars(item['price'])}** {t('unit_price')}")
-
-                if st.button(t("add_to_cart"), key=f"add_{item['id']}"):
-                    key = cart_key(item["id"], base_code, fill_code, pack_code)
-                    add_to_cart(key, qty_val)
-                    st.session_state._last_added = (item["name"], qty_val)
-                    st.rerun()
+            if st.button(t("add_to_cart"), key=f"add_{item['id']}"):
+                key = cart_key(item["id"], base_code, fill_code, pack_code)
+                add_to_cart(key, qty_val)
+                st.session_state._last_added = (item["name"], qty_val)
+                st.rerun()
 
         st.divider()
