@@ -444,23 +444,38 @@ if "_last_added" in st.session_state:
 # =========================
 # HEADER with Logo + Title + Language selector
 # =========================
-h1, h2, h3 = st.columns([0.08, 0.5, 0.22], gap="small")
-with h1:
-    st.title("")
-    st.image("images/logo.png", use_container_width=False)
-with h2:
-    st.title("")
-    st.markdown(f"<h1 style='margin:0'>{t('title')}</h1>", unsafe_allow_html=True)
-    st.caption(t("subtitle"))
-with h3:
-    st.selectbox(
-        "Language / Idioma",
-        options=list(LANGS.keys()),
-        index=list(LANGS.keys()).index(lang()),
-        format_func=lambda k: LANGS[k],
-        key="lang"
-    )
-    # st.toggle("📱 Mobile layout", key="mobile_layout", value=st.session_state.get("mobile_layout", False))
+if is_mobile_view():
+    h1, h2 = st.columns([0.75, 0.22], gap="small")
+    with h1:
+        st.image("images/logo.png", use_container_width=False)
+        st.markdown(f"<h1 style='margin:0'>{t('title')}</h1>", unsafe_allow_html=True)
+        st.caption(t("subtitle"))
+    with h2:
+        st.selectbox(
+            "Language / Idioma",
+            options=list(LANGS.keys()),
+            index=list(LANGS.keys()).index(lang()),
+            format_func=lambda k: LANGS[k],
+            key="lang"
+        )
+else:
+    h1, h2, h3 = st.columns([0.08, 0.75, 0.22], gap="small")
+    with h1:
+        # st.title("")
+        st.image("images/logo.png", use_container_width=False)
+    with h2:
+        # st.title("")
+        st.markdown(f"<h1 style='margin:0'>{t('title')}</h1>", unsafe_allow_html=True)
+        st.caption(t("subtitle"))
+    with h3:
+        st.selectbox(
+            "Language / Idioma",
+            options=list(LANGS.keys()),
+            index=list(LANGS.keys()).index(lang()),
+            format_func=lambda k: LANGS[k],
+            key="lang"
+        )
+        # st.toggle("📱 Mobile layout", key="mobile_layout", value=st.session_state.get("mobile_layout", False))
 
 st.divider()
 
