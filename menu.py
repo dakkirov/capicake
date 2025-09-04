@@ -819,7 +819,8 @@ with left:
                 st.session_state._last_added = (item["name"], qty_val)
                 st.rerun()
 
-        st.divider()
+        if is_mobile_view():
+            st.divider()
         
 # ---------- CONTACT FOOTER ----------
 lbl_title = {
