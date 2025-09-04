@@ -821,6 +821,7 @@ with left:
 
         if is_mobile_view():
             st.divider()
+        st.caption("")
         
 # ---------- CONTACT FOOTER ----------
 lbl_title = {
