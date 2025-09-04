@@ -843,8 +843,8 @@ st.markdown(
     <div class="cap-contact-footer">
       <div class="cap-contact-title">{lbl_title}</div>
       <div class="cap-contact-actions">
-        <a class="cap-cta cap-cta--ig" href="{ig_url}" target="_blank">💬 Instagram @{DEV_IG}</a>
-        <a class="cap-cta cap-cta--wa" href="{wa_url}" target="_blank">📲 WhatsApp +{DEV_WA}</a>
+        <a class="cap-cta cap-cta--ig" href="{ig_url}" target="_blank">💬 Instagram</a>
+        <a class="cap-cta cap-cta--wa" href="{wa_url}" target="_blank">📲 WhatsApp</a>
       </div>
     </div>
     """,
