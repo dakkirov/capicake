@@ -540,7 +540,7 @@ with left:
 
         if mobile:
             # ---------- MOBILE: 2 columns (image | controls stacked) ----------
-            col_img, col_right = st.columns([0.25, 0.75], gap="medium")
+            col_img, col_right = st.columns([0.01, 0.75], gap="small")
 
             with col_img:
                 if item.get("image") and os.path.exists(item["image"]):
