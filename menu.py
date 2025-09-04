@@ -447,7 +447,7 @@ if "_last_added" in st.session_state:
 if is_mobile_view():
     h1, h2 = st.columns([0.75, 0.22], gap="small")
     with h1:
-        st.image("images/logo.png", use_container_width=False)
+        st.image("images/logo.png", use_container_width=True)
         st.markdown(f"<h1 style='margin:0'>{t('title')}</h1>", unsafe_allow_html=True)
         st.caption(t("subtitle"))
     with h2:
@@ -459,10 +459,10 @@ if is_mobile_view():
             key="lang"
         )
 else:
-    h1, h2, h3 = st.columns([0.08, 0.75, 0.22], gap="small")
+    h1, h2, h3 = st.columns([0.12, 0.75, 0.22], gap="small")
     with h1:
         # st.title("")
-        st.image("images/logo.png", use_container_width=False)
+        st.image("images/logo.png", use_container_width=True)
     with h2:
         # st.title("")
         st.markdown(f"<h1 style='margin:0'>{t('title')}</h1>", unsafe_allow_html=True)
