@@ -572,6 +572,24 @@ with right:
                     fill_label = opt_label(FILLINGS, fill_code)
                     pack_label = PACK_LABELS[pack_code][lang()]
     
+                    st.write(f"**{item['name']}** · x{qty}")
+                    st.caption(f"{t('base')}: {base_label} · {t('filling')}: {fill_label} · {t('packaging')}: {pack_label}")
+                    if pack_code == "custom":
+                        st.caption(t("pack_note"))
+                    st.write(f"{t('item_total')}: **{ars(item['price'] * qty)}**")
+                    if st.button(t("remove"), key=f"rm_{key}"):
+                        remove_from_cart(key)
+                        st.rerun()
+            else:
+                for key, qty in list(st.session_state.cart.items()):
+                    item_id, base_code, fill_code, pack_code = parse_key(key)
+                    item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
+                    if not item:
+                        continue
+                    base_label = opt_label(BASES, base_code)
+                    fill_label = opt_label(FILLINGS, fill_code)
+                    pack_label = PACK_LABELS[pack_code][lang()]
+    
                     c1, c2 = st.columns([1, 2], gap="large")
                     with c1:
                         if item.get("image") and os.path.exists(item["image"]):
@@ -586,24 +604,6 @@ with right:
                         if st.button(t("remove"), key=f"rm_{key}"):
                             remove_from_cart(key)
                             st.rerun()
-            else:
-                for key, qty in list(st.session_state.cart.items()):
-                    item_id, base_code, fill_code, pack_code = parse_key(key)
-                    item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
-                    if not item:
-                        continue
-                    base_label = opt_label(BASES, base_code)
-                    fill_label = opt_label(FILLINGS, fill_code)
-                    pack_label = PACK_LABELS[pack_code][lang()]
-    
-                    st.write(f"**{item['name']}** · x{qty}")
-                    st.caption(f"{t('base')}: {base_label} · {t('filling')}: {fill_label} · {t('packaging')}: {pack_label}")
-                    if pack_code == "custom":
-                        st.caption(t("pack_note"))
-                    st.write(f"{t('item_total')}: **{ars(item['price'] * qty)}**")
-                    if st.button(t("remove"), key=f"rm_{key}"):
-                        remove_from_cart(key)
-                        st.rerun()
 
             st.divider()
             if st.button(t("empty")):
