@@ -419,7 +419,7 @@ st.markdown("""
    .cap-img-frame img{ object-fit: cover; }
 
    /* --- Responsive override for product rows in LEFT panel --- */
-    @media (max-width: 768px){
+    @media (max-width: 1024px){
       /* Target any 3-column horizontal row that appears AFTER the anchor */
       #menu-list-anchor ~ div [data-testid="stHorizontalBlock"] > div:nth-child(1){
         flex: 0 0 20% !important; max-width:20% !important;
