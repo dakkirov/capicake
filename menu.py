@@ -461,7 +461,7 @@ with h3:
         format_func=lambda k: LANGS[k],
         key="lang"
     )
-    st.toggle("📱 Mobile layout", key="mobile_layout", value=st.session_state.get("mobile_layout", False))
+    # st.toggle("📱 Mobile layout", key="mobile_layout", value=st.session_state.get("mobile_layout", False))
 
 st.divider()
 
