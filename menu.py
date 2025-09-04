@@ -605,10 +605,10 @@ with right:
                             remove_from_cart(key)
                             st.rerun()
 
-            st.divider()
-            if st.button(t("empty")):
-                st.session_state.cart = {}
-                st.rerun()
+            # st.divider()
+            # if st.button(t("empty")):
+            #     st.session_state.cart = {}
+            #     st.rerun()
     
     # mobile-only back-to-menu button
     if is_mobile_view():
