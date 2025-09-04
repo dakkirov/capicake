@@ -480,15 +480,6 @@ else:
 st.divider()
 
 
-# Show floating Cart button on mobile
-if is_mobile_view():
-    subtotal_val = cart_subtotal()
-    label = f"🛒 {ars(subtotal_val)}" if subtotal_val > 0 else f"🛒 {t('cart')}"
-    st.markdown(
-        f"<a href='#cart-section' class='cap-cart-fab'>{label}</a>",
-        unsafe_allow_html=True
-    )
-
 # =========================
 # LAYOUT: Menu (left) | Cart (right)
 # =========================
@@ -608,6 +599,15 @@ with left:
     st.info(t("notice_title"))
 
     mobile = is_mobile_view()
+
+    # Show floating Cart button on mobile
+    if is_mobile_view():
+        subtotal_val = cart_subtotal()
+        label = f"🛒 {ars(subtotal_val)}" if subtotal_val > 0 else f"🛒 {t('cart')}"
+        st.markdown(
+            f"<a href='#cart-section' class='cap-cart-fab'>{label}</a>",
+            unsafe_allow_html=True
+        )
 
     for item in MENU_ITEMS:
         st.subheader(item["name"])
