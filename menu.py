@@ -457,6 +457,28 @@ st.markdown("""
     @media (min-width: 769px){
       .cap-back-btn{ display:none; }
     }
+
+    /* Keep product rows horizontal on mobile (inside LEFT panel only) */
+    @media (max-width: 768px){
+      /* Target: any columns row rendered inside the LEFT column of your main [3,1] layout */
+      [data-testid="stHorizontalBlock"] > [data-testid="column"]:first-child 
+        [data-testid="stHorizontalBlock"]{
+          display: flex !important;
+          flex-wrap: nowrap !important;
+          align-items: flex-start;
+          gap: 1rem !important;
+      }
+    
+      /* Two-column mobile row: image 25%, controls 75% */
+      [data-testid="stHorizontalBlock"] > [data-testid="column"]:first-child 
+        [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-child(1){
+          flex: 0 0 25% !important; max-width: 25% !important;
+      }
+      [data-testid="stHorizontalBlock"] > [data-testid="column"]:first-child 
+        [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-child(2){
+          flex: 0 0 75% !important; max-width: 75% !important;
+      }
+    }
 </style>
 """, unsafe_allow_html=True)
 
