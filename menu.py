@@ -335,10 +335,47 @@ def init_item_defaults_once():
 DEV_IG = "dakkirov"
 DEV_WA = "541162109738"  # digits only
 def ig_dm_url(handle: str) -> str:
+    # opens the DM with your account; IG doesn't allow prefilled text
     return f"https://ig.me/m/{handle}"
 
 def wa_chat_url(phone: str, text: str) -> str:
     return f"https://wa.me/{phone}?text={quote_plus(text)}"
+
+def cart_subtotal() -> int:
+    total = 0
+    for key, qty in st.session_state.get("cart", {}).items():
+        item_id, _, _, _ = parse_key(key)
+        item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
+        if item:
+            total += item["price"] * qty
+    return total
+
+def auto_contact_message() -> str:
+    """Localized, friendly intro; adds a tiny context note if user interacted."""
+    ctx = ""
+    items = sum(st.session_state.get("cart", {}).values()) if st.session_state.get("cart") else 0
+    if items:
+        ctx = {
+            "es": f" Estuve probando el sitio ahora (subtotal actual {ars(cart_subtotal())}).",
+            "en": f" I was trying the site just now (current subtotal {ars(cart_subtotal())}).",
+            "ru": f" Сейчас пробовал(а) сайт (текущая сумма {ars(cart_subtotal())}).",
+        }.get(lang(), "")
+
+    base = {
+        "es": "¡Hola! Vi el sitio de Capicake y quiero algo similar para mi negocio. Mi rubro: ____ . ¿Podemos hablar? 😊",
+        "en": "Hi! I saw the Capicake site and I'd love something similar for my business. Industry: ____ . Can we chat? 😊",
+        "ru": "Здравствуйте! Увидел(а) сайт Capicake и хочу похожий для моего бизнеса. Сфера: ____ . Можно обсудить? 😊",
+    }.get(lang(), "Hi! I saw the Capicake site and I'd love something similar for my business. Can we chat? 😊")
+
+    # Optional timestamp (remove if you don’t want it)
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M")
+    tail = {
+        "es": f" (mensaje auto-generado {ts})",
+        "en": f" (auto-generated message {ts})",
+        "ru": f" (авто-сообщение {ts})",
+    }.get(lang(), f" (auto-generated {ts})")
+
+    return base + ctx + " " + tail
 
 # =========================
 # STYLES (Light look + white text buttons + big subtotal)
@@ -831,14 +868,9 @@ lbl_title = {
     "ru": "Хотите такой же сайт? Напишите мне!",
 }[lang()]
 
-default_msg = {
-    "es": "¡Hola! Vi el sitio de Capicake y quiero algo similar para mi negocio. 😊",
-    "en": "Hi! I saw the Capicake site and I'd love something similar for my business. 😊",
-    "ru": "Здравствуйте! Увидел(а) сайт Capicake и хочу похожий для своего бизнеса. 😊",
-}[lang()]
-
+msg = auto_contact_message()
 ig_url = ig_dm_url(DEV_IG)
-wa_url = wa_chat_url(DEV_WA, default_msg)
+wa_url = wa_chat_url(DEV_WA, msg)
 
 st.divider()
 st.markdown(
