@@ -438,6 +438,10 @@ st.markdown("""
         flex-wrap: nowrap;
       }
     }
+
+    @media (max-width: 768px){
+      #menu-list-anchor ~ div [data-testid="stHorizontalBlock"]{ outline: 1px dashed red; }
+    }
 }
 
 </style>
