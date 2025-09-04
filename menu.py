@@ -559,23 +559,43 @@ with right:
             st.session_state.cart_open = not st.session_state.cart_open
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
-
+        
         if st.session_state.cart_open:
-            for key, qty in list(st.session_state.cart.items()):
-                item_id, base_code, fill_code, pack_code = parse_key(key)
-                item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
-                if not item:
-                    continue
-                base_label = opt_label(BASES, base_code)
-                fill_label = opt_label(FILLINGS, fill_code)
-                pack_label = PACK_LABELS[pack_code][lang()]
-
-                c1, c2 = st.columns([1, 2], gap="large")
-                with c1:
-                    if item.get("image") and os.path.exists(item["image"]):
-                        mobile = is_mobile_view()
-                        st.image(item["image"], width=IMG_W_MOBILE if mobile else IMG_W_DESKTOP)
-                with c2:
+            
+            if is_mobile_view():
+                for key, qty in list(st.session_state.cart.items()):
+                    item_id, base_code, fill_code, pack_code = parse_key(key)
+                    item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
+                    if not item:
+                        continue
+                    base_label = opt_label(BASES, base_code)
+                    fill_label = opt_label(FILLINGS, fill_code)
+                    pack_label = PACK_LABELS[pack_code][lang()]
+    
+                    c1, c2 = st.columns([1, 2], gap="large")
+                    with c1:
+                        if item.get("image") and os.path.exists(item["image"]):
+                            mobile = is_mobile_view()
+                            st.image(item["image"], width=IMG_W_MOBILE if mobile else IMG_W_DESKTOP)
+                    with c2:
+                        st.write(f"**{item['name']}** · x{qty}")
+                        st.caption(f"{t('base')}: {base_label} · {t('filling')}: {fill_label} · {t('packaging')}: {pack_label}")
+                        if pack_code == "custom":
+                            st.caption(t("pack_note"))
+                        st.write(f"{t('item_total')}: **{ars(item['price'] * qty)}**")
+                        if st.button(t("remove"), key=f"rm_{key}"):
+                            remove_from_cart(key)
+                            st.rerun()
+            else:
+                for key, qty in list(st.session_state.cart.items()):
+                    item_id, base_code, fill_code, pack_code = parse_key(key)
+                    item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
+                    if not item:
+                        continue
+                    base_label = opt_label(BASES, base_code)
+                    fill_label = opt_label(FILLINGS, fill_code)
+                    pack_label = PACK_LABELS[pack_code][lang()]
+    
                     st.write(f"**{item['name']}** · x{qty}")
                     st.caption(f"{t('base')}: {base_label} · {t('filling')}: {fill_label} · {t('packaging')}: {pack_label}")
                     if pack_code == "custom":
