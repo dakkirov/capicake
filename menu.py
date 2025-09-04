@@ -425,6 +425,29 @@ st.markdown("""
       text-decoration: none !important;
     }
   }
+  html{ scroll-behavior: smooth; } /* nice smooth scroll */
+
+    .cap-back-btn,
+    .cap-back-btn:link,
+    .cap-back-btn:visited,
+    .cap-back-btn:hover,
+    .cap-back-btn:active{
+      display:block;
+      text-align:center;
+      background: var(--cap-pink);
+      color:#fff !important;
+      font-weight:800;
+      padding:.75rem 1rem;
+      border-radius:14px;
+      box-shadow:0 2px 10px rgba(255,92,168,.25);
+      text-decoration:none !important;
+      margin: .25rem 0 .9rem 0;
+    }
+    
+    /* hide this button on desktop/tablet */
+    @media (min-width: 769px){
+      .cap-back-btn{ display:none; }
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -489,7 +512,16 @@ left, right = st.columns([3, 1], gap="large")
 with right:
     # anchor for floating button to scroll to
     st.markdown("<div id='cart-section'></div>", unsafe_allow_html=True)
-    
+
+    # mobile-only back-to-menu button
+    if is_mobile_view():
+        back_lbl = {
+            "es": "⬆️ Volver al menú",
+            "en": "⬆️ Back to menu",
+            "ru": "⬆️ Вверх к меню",
+        }[lang()]
+        st.markdown(f"<a href='#menu-start' class='cap-back-btn'>{back_lbl}</a>", unsafe_allow_html=True)
+
     st.markdown(f"### 🛒 {t('cart')}")
     subtotal = 0
     items_count = 0
@@ -596,6 +628,7 @@ with right:
 
 # -------- LEFT: MENU — items --------
 with left:
+    st.markdown("<div id='menu-start'></div>", unsafe_allow_html=True)
     st.info(t("notice_title"))
 
     mobile = is_mobile_view()
