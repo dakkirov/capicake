@@ -569,6 +569,22 @@ st.markdown("""
     .cap-cta--wa{
       background:#25D366;
     }
+    /* Footer: inline title + WhatsApp button */
+    .cap-contact-inline{
+      display:flex; align-items:center; justify-content:center;
+      gap:.6rem; flex-wrap: wrap;            /* allow wrap on very small screens */
+      margin:.2rem 0 .6rem;
+    }
+    .cap-contact-inline .cap-contact-title{
+      margin:0; font-weight:800; font-size:1.05rem;
+    }
+    
+    /* If you want to FORCE one line even on small phones, swap wrap->nowrap: */
+    /* .cap-contact-inline{ flex-wrap: nowrap; } */
+    
+    .cap-contact-inline .cap-cta--wa{
+      margin-left:.1rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -859,20 +875,20 @@ with left:
         
 # ---------- CONTACT FOOTER ----------
 lbl_title = {
-    "es": "¿Querés un sitio como este? ¡Hablemos!",
-    "en": "Want a site like this? Let's chat!",
-    "ru": "Хотите такой же сайт? Напишите мне!",
+    "es": "¿Querés un sitio como este?",
+    "en": "Want a site like this?",
+    "ru": "Хотите такой же сайт?",
 }[lang()]
 
-msg = auto_contact_message()
+msg = auto_contact_message()          # uses your helper
 wa_url = wa_chat_url(DEV_WA, msg)
 
 st.divider()
 st.markdown(
     f"""
     <div class="cap-contact-footer">
-      <div class="cap-contact-title">{lbl_title}</div>
-      <div class="cap-contact-actions">
+      <div class="cap-contact-inline">
+        <span class="cap-contact-title">{lbl_title}</span>
         <a class="cap-cta cap-cta--wa" href="{wa_url}" target="_blank">📲 WhatsApp</a>
       </div>
     </div>
