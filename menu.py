@@ -473,6 +473,8 @@ with h3:
                  index=list(LANGS.keys()).index(lang()),
                  format_func=lambda k: LANGS[k],
                  key="lang")
+    st.toggle("📱 Mobile layout", key="mobile_layout", value=st.session_state.get("mobile_layout", False))
+
 
 st.divider()
 
@@ -597,7 +599,9 @@ with left:
         # st.caption(item["desc"][lang()])
 
         # layout: image | options | action
-        col_img, col_opts, col_action = st.columns([0.8, 1.4, 1.2], gap="large")
+        spec = [0.2, 1.4, 1.2] if st.session_state.get("mobile_layout") else [0.8, 1.4, 1.2]
+        col_img, col_opts, col_action = st.columns(spec, gap="large")
+
 
         # Col 1 — Photo
         with col_img:
