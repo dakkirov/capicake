@@ -431,6 +431,12 @@ st.markdown("""
           gap: 1rem;
           flex-wrap: nowrap;
       }
+
+      /* DEBUG: outline every 3-col row inside LEFT panel on mobile */
+        [data-testid="stHorizontalBlock"] > [data-testid="column"]:first-child 
+          [data-testid="stHorizontalBlock"]:has(> [data-testid="column"]:nth-child(3)){
+            outline: 1px dashed red;
+        }
     }
 }
 
