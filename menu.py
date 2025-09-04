@@ -2,7 +2,7 @@
 import os
 import streamlit as st
 from urllib.parse import quote_plus
-from datetime import date, time
+from datetime import datetime, date, time
 
 # Optional auto-width detection (safe if missing)
 try:
@@ -332,11 +332,7 @@ def init_item_defaults_once():
             st.session_state.setdefault(f"fill_{it['id']}", it.get("default_filling", FILLINGS[0][0]))
         st.session_state["_defaults_seeded"] = True
 
-DEV_IG = "dakkirov"
 DEV_WA = "541162109738"  # digits only
-def ig_dm_url(handle: str) -> str:
-    # opens the DM with your account; IG doesn't allow prefilled text
-    return f"https://ig.me/m/{handle}"
 
 def wa_chat_url(phone: str, text: str) -> str:
     return f"https://wa.me/{phone}?text={quote_plus(text)}"
@@ -869,7 +865,6 @@ lbl_title = {
 }[lang()]
 
 msg = auto_contact_message()
-ig_url = ig_dm_url(DEV_IG)
 wa_url = wa_chat_url(DEV_WA, msg)
 
 st.divider()
@@ -878,7 +873,6 @@ st.markdown(
     <div class="cap-contact-footer">
       <div class="cap-contact-title">{lbl_title}</div>
       <div class="cap-contact-actions">
-        <a class="cap-cta cap-cta--ig" href="{ig_url}" target="_blank">💬 Instagram</a>
         <a class="cap-cta cap-cta--wa" href="{wa_url}" target="_blank">📲 WhatsApp</a>
       </div>
     </div>
