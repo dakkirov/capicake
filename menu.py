@@ -3,7 +3,12 @@ import os
 import streamlit as st
 from urllib.parse import quote_plus
 from datetime import date, time
-from streamlit_js_eval import get_window_size
+
+# Optional auto-width detection (safe if missing)
+try:
+    from streamlit_js_eval import streamlit_js_eval
+except Exception:
+    streamlit_js_eval = None
 
 # =========================
 # CONFIG
@@ -12,6 +17,10 @@ st.set_page_config(page_title="Capicake — Menú & Pedido", page_icon="🧁", l
 
 BUSINESS_PHONE = "5491162107712"   # WhatsApp Business CapiCake
 CURRENCY = "ARS $"
+
+MOBILE_BREAKPOINT = 768
+IMG_W_MOBILE = 96
+IMG_W_DESKTOP = 160
 
 # =========================
 # LANGUAGE / I18N
@@ -105,49 +114,47 @@ TR = {
         "notice_title": "ℹ️ Handmade design: variations may occur",
     },
     "ru": {
-    "title": "Меню и заказ",
-    "subtitle": "Выберите капкейки, соберите корзину и отправьте заказ в WhatsApp в один клик.",
-    "cart": "Ваша корзина",
-    "empty_cart": "Ваша корзина пуста.",
-    # You can ignore {plural} for RU; it will be passed but not used
-    "subtotal_btn": "Итого: {subtotal} • {items} шт.",
-    "order_details": "Данные заказа",
-    "name": "Имя",
-    "mode": "Способ",
-    "pickup": "Самовывоз из Палермо",
-    "delivery": "Доставка",
-    "choose_dt": "Выбрать дату/время",
-    "date": "Дата",
-    "time": "Время",
-    "address": "Адрес (если доставка)",
-    "notes": "Примечания (вкусы, пожелания и т. п.)",
-    "wa_send": "📲 Отправить заказ в WhatsApp",
-    "remove": "Удалить",
-    "empty": "Очистить корзину",
-    "unit_price": "за штуку",
-    "item_total": "Итого по позиции",
-    "base": "Основа (бисквит)",
-    "filling": "Начинка",
-    "packaging": "Упаковка",
-    "qty6": "Количество (мин. 6)",
-    "add_to_cart": "Добавить в корзину",
-    "pack_note": "Индивидуальная упаковка: доп. стоимость согласовывается в WhatsApp в зависимости от дизайна.",
-    "msg_hi": "Здравствуйте, CapiCake! Хочу оформить заказ:",
-    "msg_subtotal": "Итого: {subtotal}",
-    "msg_subtotal_no_custom": "Итого: {subtotal} (индивидуальная упаковка не включена)",
-    "msg_mode": "Способ: {mode}",
-    "msg_when": "На дату/время: {when}",
-    "msg_addr": "Адрес: {addr}",
-    "msg_name": "Имя: {name}",
-    "msg_notes": "Примечания: {notes}",
-    "msg_warn": "⚠️ Я выбрал(а) индивидуальную упаковку для некоторых позиций. Доп. стоимость согласуем в WhatsApp.",
-    "msg_end": "Подтвердите, пожалуйста, доступность и итоговую стоимость. Спасибо! 🧁",
-    "notice_title": "ℹ️ Ручная работа: возможны отличия",
+        "title": "Меню и заказ",
+        "subtitle": "Выберите капкейки, соберите корзину и отправьте заказ в WhatsApp в один клик.",
+        "cart": "Ваша корзина",
+        "empty_cart": "Ваша корзина пуста.",
+        "subtotal_btn": "Итого: {subtotal} • {items} шт.",
+        "order_details": "Данные заказа",
+        "name": "Имя",
+        "mode": "Способ",
+        "pickup": "Самовывоз из Палермо",
+        "delivery": "Доставка",
+        "choose_dt": "Выбрать дату/время",
+        "date": "Дата",
+        "time": "Время",
+        "address": "Адрес (если доставка)",
+        "notes": "Примечания (вкусы, пожелания и т. п.)",
+        "wa_send": "📲 Отправить заказ в WhatsApp",
+        "remove": "Удалить",
+        "empty": "Очистить корзину",
+        "unit_price": "за штуку",
+        "item_total": "Итого по позиции",
+        "base": "Основа (бисквит)",
+        "filling": "Начинка",
+        "packaging": "Упаковка",
+        "qty6": "Количество (мин. 6)",
+        "add_to_cart": "Добавить в корзину",
+        "pack_note": "Индивидуальная упаковка: доп. стоимость согласовывается в WhatsApp в зависимости от дизайна.",
+        "msg_hi": "Здравствуйте, CapiCake! Хочу оформить заказ:",
+        "msg_subtotal": "Итого: {subtotal}",
+        "msg_subtotal_no_custom": "Итого: {subtotal} (индивидуальная упаковка не включена)",
+        "msg_mode": "Способ: {mode}",
+        "msg_when": "На дату/время: {when}",
+        "msg_addr": "Адрес: {addr}",
+        "msg_name": "Имя: {name}",
+        "msg_notes": "Примечания: {notes}",
+        "msg_warn": "⚠️ Я выбрал(а) индивидуальную упаковку для некоторых позиций. Доп. стоимость согласуем в WhatsApp.",
+        "msg_end": "Подтвердите, пожалуйста, доступность и итоговую стоимость. Спасибо! 🧁",
+        "notice_title": "ℹ️ Ручная работа: возможны отличия",
     },
 }
 
 # BASES
-# бисквит: ванильный, шоколадный, морковный, ред вельвет, лимонный
 BASES = [
     ("red_velvet", {"es": "Red velvet", "en": "Red velvet", "ru": "Красный бархат"}),
     ("chocolate",  {"es": "Chocolate", "en": "Chocolate", "ru": "Шоколадный"}),
@@ -157,7 +164,6 @@ BASES = [
 ]
 
 # FILLINGS
-# начинка клубничное конфи, малиновое, дульсе де лече, шоколадное пралине, маракуйя, лимонный курд, капучино
 FILLINGS = [
     ("strawberry_confit", {"es": "Confit de frutilla", "en": "Strawberry confit", "ru": "Клубничное конфи"}),
     ("berry",             {"es": "Frutos rojos",        "en": "Berry mix",        "ru": "Ягодная"}),
@@ -195,11 +201,6 @@ MENU_ITEMS = [
         "id": "carrot_charm",
         "name": "Carrot Charm",
         "price": 7500,
-        # "desc": {
-        #     "es": "Cremoso frosting naranja con frambuesa fresca, notas cítricas y perlas brillantes.",
-        #     "en": "Creamy orange frosting with fresh raspberry, citrus notes and shiny pearls.",
-        #     "ru": "Крем насыщенного оранжевого цвета с малиной, цитрусовыми нотами и блестящими шариками.",
-        # },
         "image": "images/orange.png",
         "default_base": "carrot",
         "default_filling": "passionfruit",
@@ -208,11 +209,6 @@ MENU_ITEMS = [
         "id": "lemon_bliss",
         "name": "Lemon Bliss",
         "price": 7500,
-        # "desc": {
-        #     "es": "Base de vainilla con frosting amarillo, frutilla fresca y flores soleadas.",
-        #     "en": "Vanilla base with yellow frosting, fresh strawberry and sunny flowers.",
-        #     "ru": "Ванильный капкейк с жёлтым кремом, свежей клубникой и солнечным цветком.",
-        # },
         "image": "images/yellow.png",
         "default_base": "lemon",
         "default_filling": "lemon_curd",
@@ -221,11 +217,6 @@ MENU_ITEMS = [
         "id": "velvet_bloom",
         "name": "Velvet Bloom",
         "price": 7500,
-        # "desc": {
-        #     "es": "Red velvet con frosting violeta intenso, flores brillantes y toque elegante.",
-        #     "en": "Red velvet with deep violet frosting, shiny flowers and elegant finish.",
-        #     "ru": "Ред велвет с насыщенным фиолетовым кремом, блестящим цветком и утончённым декором.",
-        # },
         "image": "images/velvet.png",
         "default_base": "red_velvet",
         "default_filling": "berry",
@@ -234,11 +225,6 @@ MENU_ITEMS = [
         "id": "pink_dream",
         "name": "Pink Dream",
         "price": 7500,
-        # "desc": {
-        #     "es": "Frosting rosa pastel, frutilla fresca y flor en tonos rojos y blancos.",
-        #     "en": "Pastel pink frosting, fresh strawberry and red-white flower decoration.",
-        #     "ru": "Пастельно-розовый крем, свежая клубника и цветок в красно-белых тонах.",
-        # },
         "image": "images/rose.png",
         "default_base": "vanilla",
         "default_filling": "strawberry_confit",
@@ -247,11 +233,6 @@ MENU_ITEMS = [
         "id": "blue_dream",
         "name": "Blue Dream",
         "price": 7500,
-        # "desc": {
-        #     "es": "Base vainilla con frosting celeste, arándanos frescos y flores perladas.",
-        #     "en": "Vanilla base with sky-blue frosting, fresh blueberries and pearled flowers.",
-        #     "ru": "Ванильный капкейк с небесно-голубым кремом, свежими черникой и украшением из жемчужных цветов.",
-        # },
         "image": "images/blue.png",
         "default_base": "vanilla",
         "default_filling": "strawberry_confit",
@@ -260,11 +241,6 @@ MENU_ITEMS = [
         "id": "romance",
         "name": "Romance",
         "price": 7500,
-        # "desc": {
-        #     "es": "Vainilla con corazón de frutilla y frosting rosa-violeta con perlas doradas.",
-        #     "en": "Vanilla with strawberry heart and pink-violet frosting with golden pearls.",
-        #     "ru": "Ванильный капкейк с клубничной начинкой и розово-фиолетовым кремом, украшен золотыми шариками.",
-        # },
         "image": "images/joya_rosa.png",
         "default_base": "vanilla",
         "default_filling": "strawberry_confit",
@@ -274,10 +250,15 @@ MENU_ITEMS = [
 # =========================
 # HELPERS
 # =========================
-def ensure_default(key, default_code, options):
-    # only set if the widget has never been initialized
-    if key not in st.session_state:
-        st.session_state[key] = default_code if default_code in options else options[0]
+def is_mobile_view() -> bool:
+    """Manual toggle OR auto-detect via JS (if available)."""
+    manual = st.session_state.get("mobile_layout", False)
+    auto = False
+    if streamlit_js_eval:
+        w = streamlit_js_eval(js_expressions='window.innerWidth', key='VW', want_output=True)
+        if isinstance(w, (int, float)):
+            auto = w <= MOBILE_BREAKPOINT
+    return manual or auto
 
 def ars(n: float) -> str:
     return f"{CURRENCY}{n:,.0f}".replace(",", ".")
@@ -324,14 +305,6 @@ def build_message(cart_lines, subtotal, buyer, modality_label, when_txt, address
 
 def whatsapp_url(message: str) -> str:
     return f"https://wa.me/{BUSINESS_PHONE}?text={quote_plus(message)}"
-
-def code_index(options, code, fallback_code=None):
-    codes = [c for c, _ in options]
-    if code in codes:
-        return codes.index(code)
-    if fallback_code and fallback_code in codes:
-        return codes.index(fallback_code)
-    return 0
 
 def init_item_defaults_once():
     if not st.session_state.get("_defaults_seeded", False):
@@ -405,7 +378,6 @@ st.markdown("""
 
   /* Small note */
   .cap-mini-note{ font-size:.85rem; color:#7A7A7A; margin-top:.25rem; }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -413,7 +385,7 @@ st.markdown("""
 # STATE INIT & TOAST
 # =========================
 init_state()
-init_item_defaults_once() 
+init_item_defaults_once()
 
 if "_last_added" in st.session_state:
     name, q = st.session_state.pop("_last_added")
@@ -435,18 +407,14 @@ with h2:
     st.caption(t("subtitle"))
 with h3:
     st.title("")
-    st.selectbox("Language / Idioma", options=list(LANGS.keys()),
-                 index=list(LANGS.keys()).index(lang()),
-                 format_func=lambda k: LANGS[k],
-                 key="lang")
+    st.selectbox(
+        "Language / Idioma",
+        options=list(LANGS.keys()),
+        index=list(LANGS.keys()).index(lang()),
+        format_func=lambda k: LANGS[k],
+        key="lang"
+    )
     st.toggle("📱 Mobile layout", key="mobile_layout", value=st.session_state.get("mobile_layout", False))
-    size = get_window_size() or {}
-    auto_mobile = size.get("width", 9999) <= 768
-    is_mobile = st.session_state.get("mobile_layout", False) or auto_mobile
-    
-    spec = [0.2, 1.4, 1.2] if is_mobile else [0.8, 1.4, 1.2]
-    col_img, col_opts, col_action = st.columns(spec, gap="large")
-
 
 st.divider()
 
@@ -505,10 +473,11 @@ with right:
                 fill_label = opt_label(FILLINGS, fill_code)
                 pack_label = PACK_LABELS[pack_code][lang()]
 
-                c1, c2 = st.columns([1, 2], gap="large")  # single nesting level
+                c1, c2 = st.columns([1, 2], gap="large")
                 with c1:
                     if item.get("image") and os.path.exists(item["image"]):
-                        st.image(item["image"], use_container_width=True)
+                        mobile = is_mobile_view()
+                        st.image(item["image"], width=IMG_W_MOBILE if mobile else IMG_W_DESKTOP)
                 with c2:
                     st.write(f"**{item['name']}** · x{qty}")
                     st.caption(f"{t('base')}: {base_label} · {t('filling')}: {fill_label} · {t('packaging')}: {pack_label}")
@@ -560,32 +529,27 @@ with right:
     else:
         st.button(t("wa_send"), disabled=True)
 
-# -------- LEFT: MENU — 1 product per row (Col1: Photo | Col2: Base+Filling | Col3: Packaging+Qty+Button) --------
+# -------- LEFT: MENU — items --------
 with left:
     st.info(t("notice_title"))
 
-    # simple manual toggle (add this near your language selector if you like):
-    # with h3: st.toggle("📱 Mobile layout", key="mobile_layout", value=st.session_state.get("mobile_layout", False))
-
-    is_mobile = st.session_state.get("mobile_layout", False)  # set via toggle; default False
+    mobile = is_mobile_view()
 
     for item in MENU_ITEMS:
         st.subheader(item["name"])
 
-        if is_mobile:
-            # ---------- MOBILE: 2 columns (image | everything else) ----------
-            col_img, col_right = st.columns([0.2, 0.8], gap="medium")
+        if mobile:
+            # ---------- MOBILE: 2 columns (image | controls stacked) ----------
+            col_img, col_right = st.columns([0.25, 0.75], gap="medium")
 
-            # Col — image
             with col_img:
                 if item.get("image") and os.path.exists(item["image"]):
-                    st.image(item["image"], use_container_width=True)
+                    st.image(item["image"], width=IMG_W_MOBILE)
                 else:
                     st.markdown("🧁")
 
-            # Col — options + action stacked
             with col_right:
-                # --- Base + Filling (same state-safe logic) ---
+                # Base + Filling (language-proof, per-item state via dedicated widget keys)
                 base_state_key = f"base_{item['id']}"
                 fill_state_key = f"fill_{item['id']}"
                 base_widget_key = f"{base_state_key}_w"
@@ -594,7 +558,7 @@ with left:
                 base_options = [c for c, _ in BASES]
                 fill_options = [c for c, _ in FILLINGS]
 
-                def idx(opts, code): 
+                def idx(opts, code):
                     return opts.index(code) if code in opts else 0
 
                 base_idx = idx(base_options, st.session_state.get(base_state_key, base_options[0]))
@@ -620,7 +584,6 @@ with left:
                 base_code = st.session_state[base_state_key]
                 fill_code = st.session_state[fill_state_key]
 
-                # --- Packaging + Qty + Add ---
                 pack_code = st.radio(
                     t("packaging"),
                     options=["standard", "custom"],
@@ -641,12 +604,12 @@ with left:
                     st.rerun()
 
         else:
-            # ---------- DESKTOP: your original 3 columns ----------
+            # ---------- DESKTOP: 3 columns (image | options | action) ----------
             col_img, col_opts, col_action = st.columns([0.8, 1.4, 1.2], gap="large")
 
             with col_img:
                 if item.get("image") and os.path.exists(item["image"]):
-                    st.image(item["image"], use_container_width=True)
+                    st.image(item["image"], width=IMG_W_DESKTOP)
                 else:
                     st.markdown("🧁")
 
@@ -659,7 +622,7 @@ with left:
                 base_options = [c for c, _ in BASES]
                 fill_options = [c for c, _ in FILLINGS]
 
-                def idx(opts, code): 
+                def idx(opts, code):
                     return opts.index(code) if code in opts else 0
 
                 base_idx = idx(base_options, st.session_state.get(base_state_key, base_options[0]))
@@ -706,4 +669,3 @@ with left:
                     st.rerun()
 
         st.divider()
-
