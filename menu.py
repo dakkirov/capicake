@@ -404,6 +404,21 @@ st.markdown("""
 
   /* Small note */
   .cap-mini-note{ font-size:.85rem; color:#7A7A7A; margin-top:.25rem; }
+
+  /* Make per-card columns responsive without changing Python ratios */
+  .cap-card [data-testid="column"] { transition: all .12s ease; }
+
+  /* Mobile override: first column (image) at 20% */
+  @media (max-width: 768px){
+   .cap-card [data-testid="column"]:nth-child(1){ flex: 0 0 20% !important; max-width:20% !important; }
+   .cap-card [data-testid="column"]:nth-child(2){ flex: 0 0 43% !important; max-width:43% !important; } /* ~1.4 / (1.4+1.2) of remaining */
+   .cap-card [data-testid="column"]:nth-child(3){ flex: 0 0 37% !important; max-width:37% !important; } /* ~1.2 / (1.4+1.2) of remaining */
+
+   /* If you use the image frame, let it fill the column nicely */
+   .cap-img-frame{ width:100%; aspect-ratio: 4 / 3; }
+   .cap-img-frame img{ object-fit: cover; }
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -557,6 +572,9 @@ with left:
         st.subheader(item["name"])
         # st.caption(item["desc"][lang()])
 
+        # inside the product loop (left side), BEFORE st.columns(...)
+        st.markdown("<div class='cap-card'>", unsafe_allow_html=True)
+
         # layout: image | options | action
         col_img, col_opts, col_action = st.columns([0.8, 1.4, 1.2], gap="large")
 
@@ -607,7 +625,7 @@ with left:
             # define the variables used later by the Add-to-cart button
             base_code = st.session_state[base_state_key]
             fill_code = st.session_state[fill_state_key]
-
+        
         # --- Col 3 — Packaging + Qty + Add ---
         with col_action:
             pack_code = st.radio(
@@ -628,4 +646,7 @@ with left:
                 add_to_cart(key, qty_val)
                 st.session_state._last_added = (item["name"], qty_val)
                 st.rerun()
+
+        st.markdown("</div>", unsafe_allow_html=True)
+        st.divider()
 
