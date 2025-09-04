@@ -252,6 +252,15 @@ MENU_ITEMS = [
 # =========================
 MOBILE_BREAKPOINT = 768  # keep your constant
 
+def cart_subtotal() -> int:
+    total = 0
+    for key, qty in st.session_state.get("cart", {}).items():
+        item_id, _, _, _ = parse_key(key)
+        item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
+        if item:
+            total += item["price"] * qty
+    return total
+
 def is_mobile_view() -> bool:
     """Manual toggle OR auto-detect (value captured once and stored in session)."""
     manual = st.session_state.get("mobile_layout", False)
@@ -394,7 +403,7 @@ st.markdown("""
     .cap-cart-fab{
       position: fixed;
       right: 16px;
-      bottom: calc(16px + env(safe-area-inset-bottom)); /* safe area on iOS */
+      bottom: calc(88px + env(safe-area-inset-bottom)); /* safe area on iOS */
       z-index: 10000;
       background: var(--cap-pink);
       color:#fff;
@@ -407,6 +416,14 @@ st.markdown("""
     }
     /* so the target isn’t hidden under headers when jumped to */
     #cart-section{ scroll-margin-top: 12px; }
+    .cap-cart-fab,
+    .cap-cart-fab:link,
+    .cap-cart-fab:visited,
+    .cap-cart-fab:hover,
+    .cap-cart-fab:active{
+      color: #fff !important;
+      text-decoration: none !important;
+    }
   }
 </style>
 """, unsafe_allow_html=True)
@@ -451,9 +468,8 @@ st.divider()
 
 # Show floating Cart button on mobile
 if is_mobile_view():
-    cart_count = sum(st.session_state.cart.values()) if st.session_state.get("cart") else 0
-    # Label: show count if > 0, otherwise the localized word “Cart”
-    label = f"🛒 {cart_count}" if cart_count else f"🛒 {t('cart')}"
+    subtotal_val = cart_subtotal()
+    label = f"🛒 {ars(subtotal_val)}" if subtotal_val > 0 else f"🛒 {t('cart')}"
     st.markdown(
         f"<a href='#cart-section' class='cap-cart-fab'>{label}</a>",
         unsafe_allow_html=True
