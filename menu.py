@@ -427,24 +427,33 @@ st.markdown("""
   }
   html{ scroll-behavior: smooth; } /* nice smooth scroll */
 
+    /* smaller, subtle ghost look on mobile */
     .cap-back-btn,
     .cap-back-btn:link,
     .cap-back-btn:visited,
     .cap-back-btn:hover,
     .cap-back-btn:active{
-      display:block;
-      text-align:center;
-      background: var(--cap-pink);
-      color:#fff !important;
-      font-weight:800;
-      padding:.75rem 1rem;
-      border-radius:14px;
-      box-shadow:0 2px 10px rgba(255,92,168,.25);
-      text-decoration:none !important;
-      margin: .25rem 0 .9rem 0;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: transparent;                  /* no solid fill */
+      color: var(--cap-text) !important;        /* muted text */
+      font-weight: 600;                          /* lighter than 800 */
+      font-size: .85rem;                         /* smaller text */
+      padding: .35rem .6rem;                     /* tighter padding */
+      border-radius: 10px;
+      border: 1px solid var(--cap-border);       /* thin outline */
+      box-shadow: none;                          /* no shadow */
+      text-decoration: none !important;
+      opacity: .85;                              /* slightly subdued */
+      margin: .25rem 0 .5rem 0;                  /* smaller margins */
+    }
+    .cap-back-btn:hover{
+      background: rgba(0,0,0,.04);               /* gentle hover */
+      opacity: 1;
     }
     
-    /* hide this button on desktop/tablet */
+    /* hide on desktop/tablet (unchanged) */
     @media (min-width: 769px){
       .cap-back-btn{ display:none; }
     }
@@ -513,15 +522,6 @@ with right:
     # anchor for floating button to scroll to
     st.markdown("<div id='cart-section'></div>", unsafe_allow_html=True)
 
-    # mobile-only back-to-menu button
-    if is_mobile_view():
-        back_lbl = {
-            "es": "⬆️ Volver al menú",
-            "en": "⬆️ Back to menu",
-            "ru": "⬆️ Вверх к меню",
-        }[lang()]
-        st.markdown(f"<a href='#menu-start' class='cap-back-btn'>{back_lbl}</a>", unsafe_allow_html=True)
-
     st.markdown(f"### 🛒 {t('cart')}")
     subtotal = 0
     items_count = 0
@@ -589,7 +589,16 @@ with right:
             if st.button(t("empty")):
                 st.session_state.cart = {}
                 st.rerun()
-
+    
+    # mobile-only back-to-menu button
+    if is_mobile_view():
+        back_lbl = {
+            "es": "⬆️ Volver al menú",
+            "en": "⬆️ Back to menu",
+            "ru": "⬆️ Вверх к меню",
+        }[lang()]
+        st.markdown(f"<a href='#menu-start' class='cap-back-btn'>{back_lbl}</a>", unsafe_allow_html=True)
+    
     # Order form
     st.divider()
     st.markdown(f"#### {t('order_details')}")
