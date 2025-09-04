@@ -590,7 +590,7 @@ with right:
                     fill_label = opt_label(FILLINGS, fill_code)
                     pack_label = PACK_LABELS[pack_code][lang()]
     
-                    c1, c2 = st.columns([1, 2], gap="large")
+                    c1, c2 = st.columns([1, 2], gap="small")
                     with c1:
                         if item.get("image") and os.path.exists(item["image"]):
                             mobile = is_mobile_view()
