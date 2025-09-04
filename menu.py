@@ -421,15 +421,6 @@ h1, h2, h3 = st.columns([0.08, 0.70, 0.22], gap="small")
 with h1:
     st.title("")
     st.image("images/logo.png", use_container_width=False)
-    # Show floating Cart button on mobile
-    if is_mobile_view():
-        cart_count = sum(st.session_state.cart.values()) if st.session_state.get("cart") else 0
-        # Label: show count if > 0, otherwise the localized word “Cart”
-        label = f"🛒 {cart_count}" if cart_count else f"🛒 {t('cart')}"
-        st.markdown(
-            f"<a href='#cart-section' class='cap-cart-fab'>{label}</a>",
-            unsafe_allow_html=True
-        )
 with h2:
     st.title("")
     st.markdown(f"<h1 style='margin:0'>{t('title')}</h1>", unsafe_allow_html=True)
@@ -446,6 +437,17 @@ with h3:
     st.toggle("📱 Mobile layout", key="mobile_layout", value=st.session_state.get("mobile_layout", False))
 
 st.divider()
+
+
+# Show floating Cart button on mobile
+if is_mobile_view():
+    cart_count = sum(st.session_state.cart.values()) if st.session_state.get("cart") else 0
+    # Label: show count if > 0, otherwise the localized word “Cart”
+    label = f"🛒 {cart_count}" if cart_count else f"🛒 {t('cart')}"
+    st.markdown(
+        f"<a href='#cart-section' class='cap-cart-fab'>{label}</a>",
+        unsafe_allow_html=True
+    )
 
 # =========================
 # LAYOUT: Menu (left) | Cart (right)
