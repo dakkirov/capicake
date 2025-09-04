@@ -405,42 +405,32 @@ st.markdown("""
   /* Small note */
   .cap-mini-note{ font-size:.85rem; color:#7A7A7A; margin-top:.25rem; }
 
-  /* Make per-card columns responsive without changing Python ratios */
-  .cap-card [data-testid="column"] { transition: all .12s ease; }
-
-  /* Mobile override: first column (image) at 20% */
-  @media (max-width: 768px){
-   .cap-card [data-testid="column"]:nth-child(1){ flex: 0 0 20% !important; max-width:20% !important; }
-   .cap-card [data-testid="column"]:nth-child(2){ flex: 0 0 43% !important; max-width:43% !important; } /* ~1.4 / (1.4+1.2) of remaining */
-   .cap-card [data-testid="column"]:nth-child(3){ flex: 0 0 37% !important; max-width:37% !important; } /* ~1.2 / (1.4+1.2) of remaining */
-
-   /* If you use the image frame, let it fill the column nicely */
-   .cap-img-frame{ width:100%; aspect-ratio: 4 / 3; }
-   .cap-img-frame img{ object-fit: cover; }
-
-   /* --- Responsive override for product rows in LEFT panel --- */
-    @media (max-width: 1024px){
-      /* Target any 3-column horizontal row that appears AFTER the anchor */
-      #menu-list-anchor ~ div [data-testid="stHorizontalBlock"] > div:nth-child(1){
-        flex: 0 0 20% !important; max-width:20% !important;
+  /* === Responsive product rows inside LEFT panel only === */
+    @media (max-width: 768px){
+      /* Select the LEFT column of your main 2-col layout, then any nested 3-col rows */
+      [data-testid="stHorizontalBlock"] > [data-testid="column"]:first-child 
+        [data-testid="stHorizontalBlock"]:has(> [data-testid="column"]:nth-child(3))
+        > [data-testid="column"]:nth-child(1){
+          flex: 0 0 20% !important; max-width: 20% !important;
       }
-      #menu-list-anchor ~ div [data-testid="stHorizontalBlock"] > div:nth-child(2){
-        flex: 0 0 43% !important; max-width:43% !important;
+      [data-testid="stHorizontalBlock"] > [data-testid="column"]:first-child 
+        [data-testid="stHorizontalBlock"]:has(> [data-testid="column"]:nth-child(3))
+        > [data-testid="column"]:nth-child(2){
+          flex: 0 0 43% !important; max-width: 43% !important;
       }
-      #menu-list-anchor ~ div [data-testid="stHorizontalBlock"] > div:nth-child(3){
-        flex: 0 0 37% !important; max-width:37% !important;
+      [data-testid="stHorizontalBlock"] > [data-testid="column"]:first-child 
+        [data-testid="stHorizontalBlock"]:has(> [data-testid="column"]:nth-child(3))
+        > [data-testid="column"]:nth-child(3){
+          flex: 0 0 37% !important; max-width: 37% !important;
       }
     
-      /* Optional: if your Streamlit version uses inline widths, enforce flex layout */
-      #menu-list-anchor ~ div [data-testid="stHorizontalBlock"]{
-        display: flex !important;
-        gap: var(--content-gap, 1rem);
-        flex-wrap: nowrap;
+      /* Ensure horizontal rows behave as flex on mobile (some Streamlit builds inline-size columns) */
+      [data-testid="stHorizontalBlock"] > [data-testid="column"]:first-child 
+        [data-testid="stHorizontalBlock"]{
+          display: flex !important;
+          gap: 1rem;
+          flex-wrap: nowrap;
       }
-    }
-
-    @media (max-width: 768px){
-      #menu-list-anchor ~ div [data-testid="stHorizontalBlock"]{ outline: 1px dashed red; }
     }
 }
 
