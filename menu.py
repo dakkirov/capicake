@@ -515,8 +515,11 @@ st.divider()
 # =========================
 # LAYOUT: Menu (left) | Cart (right)
 # =========================
-left, right = st.columns([3, 1], gap="small")
-
+if is_mobile_view():
+    left, right = st.columns([3, 1], gap="small")
+else:
+    left, right = st.columns([3, 1], gap="large")
+    
 # -------- RIGHT: CART --------
 with right:
     # anchor for floating button to scroll to
