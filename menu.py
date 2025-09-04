@@ -332,6 +332,14 @@ def init_item_defaults_once():
             st.session_state.setdefault(f"fill_{it['id']}", it.get("default_filling", FILLINGS[0][0]))
         st.session_state["_defaults_seeded"] = True
 
+DEV_IG = "dakkirov"
+DEV_WA = "541162109738"  # digits only
+def ig_dm_url(handle: str) -> str:
+    return f"https://ig.me/m/{handle}"
+
+def wa_chat_url(phone: str, text: str) -> str:
+    return f"https://wa.me/{phone}?text={quote_plus(text)}"
+
 # =========================
 # STYLES (Light look + white text buttons + big subtotal)
 # =========================
@@ -488,6 +496,45 @@ st.markdown("""
         [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-child(2){ flex: 0 0 43% !important; max-width:43% !important; }
       [data-testid="stHorizontalBlock"] > [data-testid="column"]:first-child 
         [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-child(3){ flex: 0 0 37% !important; max-width:37% !important; }
+    }
+
+    /* Footer contact card */
+    .cap-contact-footer{
+      max-width: 900px;
+      margin: 2rem auto 1.2rem;
+      padding: 1.1rem;
+      background:#FFF;
+      border:1px solid var(--cap-border);
+      border-radius:16px;
+      text-align:center;
+    }
+    .cap-contact-title{
+      margin:.1rem 0 .75rem;
+      font-weight:800;
+      font-size:1.15rem;
+    }
+    .cap-contact-actions{
+      display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap;
+    }
+    
+    /* CTA buttons */
+    .cap-cta,
+    .cap-cta:link,
+    .cap-cta:visited,
+    .cap-cta:hover,
+    .cap-cta:active{
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.6rem 1rem;
+      border-radius:12px;
+      font-weight:800;
+      text-decoration:none !important;
+      color:#fff !important;
+    }
+    .cap-cta--ig{
+      background: linear-gradient(45deg,#f58529,#dd2a7b,#8134af,#515bd4);
+    }
+    .cap-cta--wa{
+      background:#25D366;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -773,3 +820,33 @@ with left:
                 st.rerun()
 
         st.divider()
+        
+# ---------- CONTACT FOOTER ----------
+lbl_title = {
+    "es": "¿Querés un sitio como este? ¡Hablemos!",
+    "en": "Want a site like this? Let's chat!",
+    "ru": "Хотите такой же сайт? Напишите мне!",
+}[lang()]
+
+default_msg = {
+    "es": "¡Hola! Vi el sitio de Capicake y quiero algo similar para mi negocio. 😊",
+    "en": "Hi! I saw the Capicake site and I'd love something similar for my business. 😊",
+    "ru": "Здравствуйте! Увидел(а) сайт Capicake и хочу похожий для своего бизнеса. 😊",
+}[lang()]
+
+ig_url = ig_dm_url(DEV_IG)
+wa_url = wa_chat_url(DEV_WA, default_msg)
+
+st.divider()
+st.markdown(
+    f"""
+    <div class="cap-contact-footer">
+      <div class="cap-contact-title">{lbl_title}</div>
+      <div class="cap-contact-actions">
+        <a class="cap-cta cap-cta--ig" href="{ig_url}" target="_blank">💬 Instagram @{DEV_IG}</a>
+        <a class="cap-cta cap-cta--wa" href="{wa_url}" target="_blank">📲 WhatsApp +{DEV_WA}</a>
+      </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
