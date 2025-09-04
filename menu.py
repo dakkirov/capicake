@@ -677,7 +677,10 @@ with left:
     for item in MENU_ITEMS:
         st.subheader(item["name"])
         # ---------- DESKTOP: 3 columns (image | options | action) ----------
-        col_img, col_opts, col_action = st.columns([0.8, 1.4, 1.2], gap="small")
+        if is_mobile_view():
+            col_img, col_opts, col_action = st.columns([0.01, 2, 2], gap="small")
+        else:
+            col_img, col_opts, col_action = st.columns([0.8, 1.4, 1.2], gap="small")
 
         with col_img:
             if item.get("image") and os.path.exists(item["image"]):
