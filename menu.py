@@ -515,7 +515,7 @@ st.divider()
 # =========================
 # LAYOUT: Menu (left) | Cart (right)
 # =========================
-left, right = st.columns([3, 1], gap="large")
+left, right = st.columns([3, 1], gap="small")
 
 # -------- RIGHT: CART --------
 with right:
