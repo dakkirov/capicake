@@ -417,6 +417,27 @@ st.markdown("""
    /* If you use the image frame, let it fill the column nicely */
    .cap-img-frame{ width:100%; aspect-ratio: 4 / 3; }
    .cap-img-frame img{ object-fit: cover; }
+
+   /* --- Responsive override for product rows in LEFT panel --- */
+    @media (max-width: 768px){
+      /* Target any 3-column horizontal row that appears AFTER the anchor */
+      #menu-list-anchor ~ div [data-testid="stHorizontalBlock"] > div:nth-child(1){
+        flex: 0 0 20% !important; max-width:20% !important;
+      }
+      #menu-list-anchor ~ div [data-testid="stHorizontalBlock"] > div:nth-child(2){
+        flex: 0 0 43% !important; max-width:43% !important;
+      }
+      #menu-list-anchor ~ div [data-testid="stHorizontalBlock"] > div:nth-child(3){
+        flex: 0 0 37% !important; max-width:37% !important;
+      }
+    
+      /* Optional: if your Streamlit version uses inline widths, enforce flex layout */
+      #menu-list-anchor ~ div [data-testid="stHorizontalBlock"]{
+        display: flex !important;
+        gap: var(--content-gap, 1rem);
+        flex-wrap: nowrap;
+      }
+    }
 }
 
 </style>
@@ -567,13 +588,13 @@ with right:
 
 # -------- LEFT: MENU — 1 product per row (Col1: Photo | Col2: Base+Filling | Col3: Packaging+Qty+Button) --------
 with left:
+    # Anchor to target all product rows that follow
+    st.markdown("<div id='menu-list-anchor'></div>", unsafe_allow_html=True)
+
     st.info(t("notice_title"))
     for item in MENU_ITEMS:
         st.subheader(item["name"])
         # st.caption(item["desc"][lang()])
-
-        # inside the product loop (left side), BEFORE st.columns(...)
-        st.markdown("<div class='cap-card'>", unsafe_allow_html=True)
 
         # layout: image | options | action
         col_img, col_opts, col_action = st.columns([0.8, 1.4, 1.2], gap="large")
