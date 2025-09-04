@@ -3,6 +3,7 @@ import os
 import streamlit as st
 from urllib.parse import quote_plus
 from datetime import date, time
+from streamlit_js_eval import get_window_size
 
 # =========================
 # CONFIG
@@ -439,6 +440,12 @@ with h3:
                  format_func=lambda k: LANGS[k],
                  key="lang")
     st.toggle("📱 Mobile layout", key="mobile_layout", value=st.session_state.get("mobile_layout", False))
+    size = get_window_size() or {}
+    auto_mobile = size.get("width", 9999) <= 768
+    is_mobile = st.session_state.get("mobile_layout", False) or auto_mobile
+    
+    spec = [0.2, 1.4, 1.2] if is_mobile else [0.8, 1.4, 1.2]
+    col_img, col_opts, col_action = st.columns(spec, gap="large")
 
 
 st.divider()
