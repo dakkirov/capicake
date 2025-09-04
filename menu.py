@@ -378,6 +378,26 @@ st.markdown("""
 
   /* Small note */
   .cap-mini-note{ font-size:.85rem; color:#7A7A7A; margin-top:.25rem; }
+
+  /* Floating Cart button (mobile only) */
+  @media (max-width: 768px){
+    .cap-cart-fab{
+      position: fixed;
+      right: 16px;
+      bottom: calc(16px + env(safe-area-inset-bottom)); /* safe area on iOS */
+      z-index: 10000;
+      background: var(--cap-pink);
+      color:#fff;
+      font-weight: 800;
+      padding: .9rem 1.1rem;
+      border-radius: 999px;
+      box-shadow: 0 10px 30px rgba(255,92,168,.35);
+      text-decoration: none;
+      display:inline-flex; align-items:center; gap:.5rem;
+    }
+    /* so the target isn’t hidden under headers when jumped to */
+    #cart-section{ scroll-margin-top: 12px; }
+  }
 </style>
 """, unsafe_allow_html=True)
 
@@ -400,7 +420,16 @@ if "_last_added" in st.session_state:
 h1, h2, h3 = st.columns([0.08, 0.70, 0.22], gap="small")
 with h1:
     st.title("")
-    st.image("images/logo.png", use_container_width=True)
+    st.image("images/logo.png", use_container_width=False)
+    # Show floating Cart button on mobile
+    if is_mobile_view():
+        cart_count = sum(st.session_state.cart.values()) if st.session_state.get("cart") else 0
+        # Label: show count if > 0, otherwise the localized word “Cart”
+        label = f"🛒 {cart_count}" if cart_count else f"🛒 {t('cart')}"
+        st.markdown(
+            f"<a href='#cart-section' class='cap-cart-fab'>{label}</a>",
+            unsafe_allow_html=True
+        )
 with h2:
     st.title("")
     st.markdown(f"<h1 style='margin:0'>{t('title')}</h1>", unsafe_allow_html=True)
@@ -425,6 +454,9 @@ left, right = st.columns([3, 1], gap="large")
 
 # -------- RIGHT: CART --------
 with right:
+    # anchor for floating button to scroll to
+    st.markdown("<div id='cart-section'></div>", unsafe_allow_html=True)
+    
     st.markdown(f"### 🛒 {t('cart')}")
     subtotal = 0
     items_count = 0
