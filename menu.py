@@ -479,6 +479,16 @@ st.markdown("""
           flex: 0 0 75% !important; max-width: 75% !important;
       }
     }
+
+    @media (max-width: 768px){
+      /* 3-col split example: 20/43/37 */
+      [data-testid="stHorizontalBlock"] > [data-testid="column"]:first-child 
+        [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-child(1){ flex: 0 0 20% !important; max-width:20% !important; }
+      [data-testid="stHorizontalBlock"] > [data-testid="column"]:first-child 
+        [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-child(2){ flex: 0 0 43% !important; max-width:43% !important; }
+      [data-testid="stHorizontalBlock"] > [data-testid="column"]:first-child 
+        [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-child(3){ flex: 0 0 37% !important; max-width:37% !important; }
+    }
 </style>
 """, unsafe_allow_html=True)
 
