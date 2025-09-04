@@ -451,9 +451,8 @@ with h1:
 with h2:
     st.title("")
     st.markdown(f"<h1 style='margin:0'>{t('title')}</h1>", unsafe_allow_html=True)
-    st.subheader(t("subtitle"))
+    st.caption(t("subtitle"))
 with h3:
-    st.title("")
     st.selectbox(
         "Language / Idioma",
         options=list(LANGS.keys()),
