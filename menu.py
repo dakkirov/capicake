@@ -594,7 +594,7 @@ with right:
                     with c1:
                         if item.get("image") and os.path.exists(item["image"]):
                             mobile = is_mobile_view()
-                            st.image(item["image"], width=IMG_W_MOBILE if mobile else IMG_W_DESKTOP)
+                            st.image(item["image"], use_container_width=True)
                     with c2:
                         st.write(f"**{item['name']}** · x{qty}")
                         st.caption(f"{t('base')}: {base_label} · {t('filling')}: {fill_label} · {t('packaging')}: {pack_label}")
