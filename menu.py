@@ -16,6 +16,11 @@ try:
 except Exception:
     sa_track = None
 
+import streamlit_analytics
+
+# Start analytics. (Optional) persist to JSON so data survives restarts.
+streamlit_analytics.start_tracking(save_to_json="analytics.json")
+
 # =========================
 # CONFIG
 # =========================
@@ -395,7 +400,17 @@ st.markdown("""
   .cap-cta, .cap-cta:link, .cap-cta:visited, .cap-cta:hover, .cap-cta:active{ display:inline-flex; align-items:center; gap:.5rem; padding:.6rem 1rem; border-radius:12px; font-weight:800; text-decoration:none !important; color:#fff !important; }
   .cap-cta--ig{ background: linear-gradient(45deg,#f58529,#dd2a7b,#8134af,#515bd4); }
   .cap-cta--wa{ background:#25D366; }
-  .cap-contact-inline{ display:flex; align-items:center; justify-content:center; gap:.6rem; flex-wrap: wrap; margin:.2rem 0 .6rem; }
+  .cap-contact-inline{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:.6rem;
+      flex-wrap: nowrap;          /* keep on one line */
+      margin:.2rem 0 .6rem;
+    }
+    @media (max-width: 420px){
+      .cap-contact-inline{ flex-wrap: wrap; } /* allow wrap on tiny phones */
+    }
   .cap-contact-inline .cap-contact-title{ margin:0; font-weight:800; font-size:1.05rem; }
   .cap-contact-inline .cap-cta--wa{ margin-left:.1rem; }
 </style>
@@ -689,22 +704,23 @@ def render_app():
         "en": "Want a site like this?",
         "ru": "Хотите такой же сайт?",
     }[lang()]
-
+    
     msg = auto_contact_message()
     wa_url = wa_chat_url(DEV_WA, msg)
-
+    
     st.divider()
-    # Use a button to log, then open WA in new tab
     st.markdown(
         f"""
         <div class="cap-contact-footer">
           <div class="cap-contact-inline">
             <span class="cap-contact-title">{lbl_title}</span>
+            <a class="cap-cta cap-cta--wa" href="{wa_url}" target="_blank" rel="noopener">📲 WhatsApp</a>
           </div>
         </div>
         """,
         unsafe_allow_html=True
-    )
+        )
+    
     if st.button("📲 WhatsApp", key="footer_wa_btn"):
         _log_event("contact_whatsapp_footer", msg_len=len(msg))
         if streamlit_js_eval:
