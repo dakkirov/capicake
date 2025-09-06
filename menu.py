@@ -727,7 +727,7 @@ def render_app():
             streamlit_js_eval(js_expressions=f"window.open('{wa_url}','_blank')",
                               key="WA_CONTACT_OPEN", want_output=False)
         else:
-            # st.markdown(f"[📲 WhatsApp]({wa_url})")
+            st.markdown(f"[📲 WhatsApp]({wa_url})")
 
     # Periodically flush custom events to disk
     _flush_events_to_disk()
