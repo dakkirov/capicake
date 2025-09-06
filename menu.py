@@ -356,241 +356,234 @@ st.markdown("""
 # =========================
 # CORE RENDER
 # =========================
-def main():
-    init_state()
-    init_item_defaults_once()
+init_state()
+init_item_defaults_once()
 
-    # ----- Header -----
-    prev_lang = lang()
-    if is_mobile_view():
-        h1, h2 = st.columns([0.22, 0.22], gap="small")
-        with h1:
-            st.image("images/logo.png", use_container_width=False)
-            st.markdown(f"<h1 style='margin:0'>{t('title')}</h1>", unsafe_allow_html=True)
-            st.caption(t("subtitle"))
-        with h2:
-            st.selectbox("Language / Idioma",
-                         options=list(LANGS.keys()),
-                         index=list(LANGS.keys()).index(lang()),
-                         format_func=lambda k: LANGS[k],
-                         key="lang")
+# ----- Header -----
+prev_lang = lang()
+if is_mobile_view():
+    h1, h2 = st.columns([0.22, 0.22], gap="small")
+    with h1:
+        st.image("images/logo.png", use_container_width=False)
+        st.markdown(f"<h1 style='margin:0'>{t('title')}</h1>", unsafe_allow_html=True)
+        st.caption(t("subtitle"))
+    with h2:
+        st.selectbox("Language / Idioma",
+                     options=list(LANGS.keys()),
+                     index=list(LANGS.keys()).index(lang()),
+                     format_func=lambda k: LANGS[k],
+                     key="lang")
+else:
+    h1, h2, h3 = st.columns([0.12, 0.75, 0.22], gap="small")
+    with h1:
+        st.image("images/logo.png", use_container_width=True)
+    with h2:
+        st.markdown(f"<h1 style='margin:0'>{t('title')}</h1>", unsafe_allow_html=True)
+        st.caption(t("subtitle"))
+    with h3:
+        st.selectbox("Language / Idioma",
+                     options=list(LANGS.keys()),
+                     index=list(LANGS.keys()).index(lang()),
+                     format_func=lambda k: LANGS[k],
+                     key="lang")
+
+st.divider()
+
+# ----- Layout -----
+left, right = st.columns([3, 1], gap=("small" if is_mobile_view() else "large"))
+
+# ===== RIGHT: CART =====
+with right:
+    st.markdown("<div id='cart-section'></div>", unsafe_allow_html=True)
+    st.markdown(f"### 🛒 {t('cart')}")
+    subtotal = 0
+    items_count = 0
+    custom_pack_flag = False
+    cart_lines = []
+
+    for key, qty in st.session_state.cart.items():
+        item_id, base_code, fill_code, pack_code = parse_key(key)
+        item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
+        if not item:
+            continue
+        line_total = item["price"] * qty
+        subtotal += line_total
+        items_count += qty
+        if pack_code == "custom":
+            custom_pack_flag = True
+        base_label = opt_label(BASES, base_code)
+        fill_label = opt_label(FILLINGS, fill_code)
+        pack_label = PACK_LABELS[pack_code][lang()]
+        cart_lines.append(
+            f"- {item['name']} · {t('base').split('(')[0].strip()}: {base_label} · "
+            f"{t('filling')}: {fill_label} · {t('packaging')}: {pack_label} · "
+            f"x{qty} = {ars(line_total)}"
+        )
+
+    if not cart_lines:
+        st.info(t("empty_cart"))
     else:
-        h1, h2, h3 = st.columns([0.12, 0.75, 0.22], gap="small")
-        with h1:
-            st.image("images/logo.png", use_container_width=True)
-        with h2:
-            st.markdown(f"<h1 style='margin:0'>{t('title')}</h1>", unsafe_allow_html=True)
-            st.caption(t("subtitle"))
-        with h3:
-            st.selectbox("Language / Idioma",
-                         options=list(LANGS.keys()),
-                         index=list(LANGS.keys()).index(lang()),
-                         format_func=lambda k: LANGS[k],
-                         key="lang")
+        arrow = "▾" if not st.session_state.cart_open else "▴"
+        plural = "" if (lang()=="en" and items_count==1) else ("s" if lang()=="en" else "")
+        label = t("subtotal_btn", subtotal=ars(subtotal), items=items_count, plural=plural) + f"  {arrow}"
+        st.markdown('<div class="subtotal-btn">', unsafe_allow_html=True)
+        if st.button(label, key="toggle_cart", use_container_width=True):
+            st.session_state.cart_open = not st.session_state.cart_open
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    st.divider()
-
-    # ----- Layout -----
-    left, right = st.columns([3, 1], gap=("small" if is_mobile_view() else "large"))
-
-    # ===== RIGHT: CART =====
-    with right:
-        st.markdown("<div id='cart-section'></div>", unsafe_allow_html=True)
-        st.markdown(f"### 🛒 {t('cart')}")
-        subtotal = 0
-        items_count = 0
-        custom_pack_flag = False
-        cart_lines = []
-
-        for key, qty in st.session_state.cart.items():
-            item_id, base_code, fill_code, pack_code = parse_key(key)
-            item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
-            if not item:
-                continue
-            line_total = item["price"] * qty
-            subtotal += line_total
-            items_count += qty
-            if pack_code == "custom":
-                custom_pack_flag = True
-            base_label = opt_label(BASES, base_code)
-            fill_label = opt_label(FILLINGS, fill_code)
-            pack_label = PACK_LABELS[pack_code][lang()]
-            cart_lines.append(
-                f"- {item['name']} · {t('base').split('(')[0].strip()}: {base_label} · "
-                f"{t('filling')}: {fill_label} · {t('packaging')}: {pack_label} · "
-                f"x{qty} = {ars(line_total)}"
-            )
-
-        if not cart_lines:
-            st.info(t("empty_cart"))
-        else:
-            arrow = "▾" if not st.session_state.cart_open else "▴"
-            plural = "" if (lang()=="en" and items_count==1) else ("s" if lang()=="en" else "")
-            label = t("subtotal_btn", subtotal=ars(subtotal), items=items_count, plural=plural) + f"  {arrow}"
-            st.markdown('<div class="subtotal-btn">', unsafe_allow_html=True)
-            if st.button(label, key="toggle_cart", use_container_width=True):
-                st.session_state.cart_open = not st.session_state.cart_open
-                st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
-
-            if st.session_state.cart_open:
-                if is_mobile_view():
-                    for key, qty in list(st.session_state.cart.items()):
-                        item_id, base_code, fill_code, pack_code = parse_key(key)
-                        item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
-                        if not item: continue
-                        base_label = opt_label(BASES, base_code)
-                        fill_label = opt_label(FILLINGS, fill_code)
-                        pack_label = PACK_LABELS[pack_code][lang()]
+        if st.session_state.cart_open:
+            if is_mobile_view():
+                for key, qty in list(st.session_state.cart.items()):
+                    item_id, base_code, fill_code, pack_code = parse_key(key)
+                    item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
+                    if not item: continue
+                    base_label = opt_label(BASES, base_code)
+                    fill_label = opt_label(FILLINGS, fill_code)
+                    pack_label = PACK_LABELS[pack_code][lang()]
+                    st.write(f"**{item['name']}** · x{qty}")
+                    st.caption(f"{t('base')}: {base_label} · {t('filling')}: {fill_label} · {t('packaging')}: {pack_label}")
+                    if pack_code == "custom": st.caption(t("pack_note"))
+                    st.write(f"{t('item_total')}: **{ars(item['price'] * qty)}**")
+                    if st.button(t("remove"), key=f"rm_{key}"):
+                        remove_from_cart(key); st.rerun()
+            else:
+                for key, qty in list(st.session_state.cart.items()):
+                    item_id, base_code, fill_code, pack_code = parse_key(key)
+                    item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
+                    if not item: continue
+                    base_label = opt_label(BASES, base_code)
+                    fill_label = opt_label(FILLINGS, fill_code)
+                    pack_label = PACK_LABELS[pack_code][lang()]
+                    c1, c2 = st.columns([1, 2], gap="small")
+                    with c1:
+                        if item.get("image") and os.path.exists(item["image"]):
+                            st.image(item["image"], use_container_width=True)
+                    with c2:
                         st.write(f"**{item['name']}** · x{qty}")
                         st.caption(f"{t('base')}: {base_label} · {t('filling')}: {fill_label} · {t('packaging')}: {pack_label}")
                         if pack_code == "custom": st.caption(t("pack_note"))
                         st.write(f"{t('item_total')}: **{ars(item['price'] * qty)}**")
                         if st.button(t("remove"), key=f"rm_{key}"):
                             remove_from_cart(key); st.rerun()
-                else:
-                    for key, qty in list(st.session_state.cart.items()):
-                        item_id, base_code, fill_code, pack_code = parse_key(key)
-                        item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
-                        if not item: continue
-                        base_label = opt_label(BASES, base_code)
-                        fill_label = opt_label(FILLINGS, fill_code)
-                        pack_label = PACK_LABELS[pack_code][lang()]
-                        c1, c2 = st.columns([1, 2], gap="small")
-                        with c1:
-                            if item.get("image") and os.path.exists(item["image"]):
-                                st.image(item["image"], use_container_width=True)
-                        with c2:
-                            st.write(f"**{item['name']}** · x{qty}")
-                            st.caption(f"{t('base')}: {base_label} · {t('filling')}: {fill_label} · {t('packaging')}: {pack_label}")
-                            if pack_code == "custom": st.caption(t("pack_note"))
-                            st.write(f"{t('item_total')}: **{ars(item['price'] * qty)}**")
-                            if st.button(t("remove"), key=f"rm_{key}"):
-                                remove_from_cart(key); st.rerun()
 
-        # mobile-only back-to-menu link
-        if is_mobile_view():
-            back_lbl = {"es": "⬆️ Volver al menú", "en": "⬆️ Back to menu", "ru": "⬆️ Вверх к меню"}[lang()]
-            st.markdown(f"<a href='#menu-start' class='cap-back-btn'>{back_lbl}</a>", unsafe_allow_html=True)
+    # mobile-only back-to-menu link
+    if is_mobile_view():
+        back_lbl = {"es": "⬆️ Volver al menú", "en": "⬆️ Back to menu", "ru": "⬆️ Вверх к меню"}[lang()]
+        st.markdown(f"<a href='#menu-start' class='cap-back-btn'>{back_lbl}</a>", unsafe_allow_html=True)
 
-        # ----- Order form -----
-        st.divider()
-        st.markdown(f"#### {t('order_details')}")
-        buyer = st.text_input(t("name"), placeholder=("Tu nombre" if lang()=="es" else "Your name"))
-        modality_label = st.radio(t("mode"), [t("pickup"), t("delivery")], index=0, horizontal=True)
-
-        col_dt1, col_dt2 = st.columns(2)
-        with col_dt1:
-            use_date = st.checkbox(t("choose_dt"), key="use_date")
-        when_txt = ""
-        if use_date:
-            with col_dt1: d = st.date_input(t("date"), value=date.today(), key="date_pick")
-            with col_dt2: tm = st.time_input(t("time"), value=time(18, 0), key="time_pick")
-            when_txt = f"{d.strftime('%d/%m/%Y')} {tm.strftime('%H:%M')}"
-
-        address = st.text_input(t("address"),
-                                placeholder=("Calle, número, piso…" if lang()=="es" else "Street, number, floor…"))
-        notes = st.text_area(t("notes"),
-                             placeholder=("Ej: Sin frutos secos" if lang()=="es" else "E.g., no nuts"))
-
-        if cart_lines:
-            msg = build_message(cart_lines, subtotal, buyer, modality_label, when_txt, address, notes, custom_pack_flag)
-            if st.button(t("wa_send"), key="wa_checkout_btn"):
-                if streamlit_js_eval:
-                    streamlit_js_eval(js_expressions=f"window.open('{whatsapp_url(msg)}','_blank')",
-                                      key=f"WA_OPEN_{subtotal}_{items_count}", want_output=False)
-                else:
-                    st.markdown(f"[{t('wa_send')}]({whatsapp_url(msg)})")
-        else:
-            st.button(t("wa_send"), disabled=True)
-
-    # ===== LEFT: MENU =====
-    with left:
-        st.markdown("<div id='menu-start'></div>", unsafe_allow_html=True)
-        st.info(t("notice_title"))
-
-        # Floating Cart button on mobile
-        if is_mobile_view():
-            subtotal_val = cart_subtotal()
-            label = f"🛒 {ars(subtotal_val)}" if subtotal_val > 0 else f"🛒 {t('cart')}"
-            st.markdown(f"<a href='#cart-section' class='cap-cart-fab'>{label}</a>", unsafe_allow_html=True)
-
-        for item in MENU_ITEMS:
-            st.subheader(item["name"])
-            col_img, col_opts, col_action = st.columns([0.8, 1.4, 1.2], gap="small")
-
-            with col_img:
-                if item.get("image") and os.path.exists(item["image"]):
-                    st.image(item["image"], use_container_width=True)  # crisp, fits column
-                else:
-                    st.markdown("🧁")
-
-            with col_opts:
-                base_state_key = f"base_{item['id']}"
-                fill_state_key = f"fill_{item['id']}"
-                base_widget_key = f"{base_state_key}_w"
-                fill_widget_key = f"{fill_state_key}_w"
-
-                base_options = [c for c, _ in BASES]
-                fill_options = [c for c, _ in FILLINGS]
-
-                def idx(opts, code): return opts.index(code) if code in opts else 0
-                base_idx = idx(base_options, st.session_state.get(base_state_key, base_options[0]))
-                fill_idx = idx(fill_options, st.session_state.get(fill_state_key, fill_options[0]))
-
-                st.selectbox(t("base"), options=base_options, index=base_idx,
-                             format_func=lambda c: opt_label(BASES, c), key=base_widget_key)
-                st.selectbox(t("filling"), options=fill_options, index=fill_idx,
-                             format_func=lambda c: opt_label(FILLINGS, c), key=fill_widget_key)
-
-                st.session_state[base_state_key] = st.session_state[base_widget_key]
-                st.session_state[fill_state_key] = st.session_state[fill_widget_key]
-
-                base_code = st.session_state[base_state_key]
-                fill_code = st.session_state[fill_state_key]
-
-            with col_action:
-                pack_key = f"pack_{item['id']}"
-                pack_code = st.radio(t("packaging"), options=["standard", "custom"],
-                                     horizontal=True, format_func=lambda c: PACK_LABELS[c][lang()],
-                                     key=pack_key)
-
-                if pack_code == "custom":
-                    st.caption(t("pack_note"))
-
-                qty_key = f"qty_{item['id']}"
-                qty_val = st.number_input(t("qty6"), min_value=6, value=st.session_state.get(qty_key, 6), step=1, key=qty_key)
-
-                st.write(f"**{ars(item['price'])}** {t('unit_price')}")
-
-                if st.button(t("add_to_cart"), key=f"add_{item['id']}"):
-                    key = cart_key(item["id"], base_code, fill_code, pack_code)
-                    add_to_cart(key, int(qty_val))
-                    st.session_state._last_added = (item["name"], int(qty_val))
-                    st.rerun()
-
-            st.divider()
-
-    # ----- Footer contact (inline title + WA button) -----
-    lbl_title = {"es": "¿Querés un sitio como este?", "en": "Want a site like this?", "ru": "Хотите такой же сайт?"}[lang()]
-    msg = auto_contact_message()
-    wa_url = wa_chat_url(DEV_WA, msg)
-
+    # ----- Order form -----
     st.divider()
-    st.markdown(
-        f"""
-        <div class="cap-contact-footer">
-          <div class="cap-contact-inline">
-            <span class="cap-contact-title">{lbl_title}</span>
-            <a class="cap-cta cap-cta--wa" href="{wa_url}" target="_blank" rel="noopener">📲 WhatsApp</a>
-          </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown(f"#### {t('order_details')}")
+    buyer = st.text_input(t("name"), placeholder=("Tu nombre" if lang()=="es" else "Your name"))
+    modality_label = st.radio(t("mode"), [t("pickup"), t("delivery")], index=0, horizontal=True)
 
-# =========================
-# RUN
-# =========================
-if __name__ == "__main__":
-    main()
+    col_dt1, col_dt2 = st.columns(2)
+    with col_dt1:
+        use_date = st.checkbox(t("choose_dt"), key="use_date")
+    when_txt = ""
+    if use_date:
+        with col_dt1: d = st.date_input(t("date"), value=date.today(), key="date_pick")
+        with col_dt2: tm = st.time_input(t("time"), value=time(18, 0), key="time_pick")
+        when_txt = f"{d.strftime('%d/%m/%Y')} {tm.strftime('%H:%M')}"
+
+    address = st.text_input(t("address"),
+                            placeholder=("Calle, número, piso…" if lang()=="es" else "Street, number, floor…"))
+    notes = st.text_area(t("notes"),
+                         placeholder=("Ej: Sin frutos secos" if lang()=="es" else "E.g., no nuts"))
+
+    if cart_lines:
+        msg = build_message(cart_lines, subtotal, buyer, modality_label, when_txt, address, notes, custom_pack_flag)
+        if st.button(t("wa_send"), key="wa_checkout_btn"):
+            if streamlit_js_eval:
+                streamlit_js_eval(js_expressions=f"window.open('{whatsapp_url(msg)}','_blank')",
+                                  key=f"WA_OPEN_{subtotal}_{items_count}", want_output=False)
+            else:
+                st.markdown(f"[{t('wa_send')}]({whatsapp_url(msg)})")
+    else:
+        st.button(t("wa_send"), disabled=True)
+
+# ===== LEFT: MENU =====
+with left:
+    st.markdown("<div id='menu-start'></div>", unsafe_allow_html=True)
+    st.info(t("notice_title"))
+
+    # Floating Cart button on mobile
+    if is_mobile_view():
+        subtotal_val = cart_subtotal()
+        label = f"🛒 {ars(subtotal_val)}" if subtotal_val > 0 else f"🛒 {t('cart')}"
+        st.markdown(f"<a href='#cart-section' class='cap-cart-fab'>{label}</a>", unsafe_allow_html=True)
+
+    for item in MENU_ITEMS:
+        st.subheader(item["name"])
+        col_img, col_opts, col_action = st.columns([0.8, 1.4, 1.2], gap="small")
+
+        with col_img:
+            if item.get("image") and os.path.exists(item["image"]):
+                st.image(item["image"], use_container_width=True)  # crisp, fits column
+            else:
+                st.markdown("🧁")
+
+        with col_opts:
+            base_state_key = f"base_{item['id']}"
+            fill_state_key = f"fill_{item['id']}"
+            base_widget_key = f"{base_state_key}_w"
+            fill_widget_key = f"{fill_state_key}_w"
+
+            base_options = [c for c, _ in BASES]
+            fill_options = [c for c, _ in FILLINGS]
+
+            def idx(opts, code): return opts.index(code) if code in opts else 0
+            base_idx = idx(base_options, st.session_state.get(base_state_key, base_options[0]))
+            fill_idx = idx(fill_options, st.session_state.get(fill_state_key, fill_options[0]))
+
+            st.selectbox(t("base"), options=base_options, index=base_idx,
+                         format_func=lambda c: opt_label(BASES, c), key=base_widget_key)
+            st.selectbox(t("filling"), options=fill_options, index=fill_idx,
+                         format_func=lambda c: opt_label(FILLINGS, c), key=fill_widget_key)
+
+            st.session_state[base_state_key] = st.session_state[base_widget_key]
+            st.session_state[fill_state_key] = st.session_state[fill_widget_key]
+
+            base_code = st.session_state[base_state_key]
+            fill_code = st.session_state[fill_state_key]
+
+        with col_action:
+            pack_key = f"pack_{item['id']}"
+            pack_code = st.radio(t("packaging"), options=["standard", "custom"],
+                                 horizontal=True, format_func=lambda c: PACK_LABELS[c][lang()],
+                                 key=pack_key)
+
+            if pack_code == "custom":
+                st.caption(t("pack_note"))
+
+            qty_key = f"qty_{item['id']}"
+            qty_val = st.number_input(t("qty6"), min_value=6, value=st.session_state.get(qty_key, 6), step=1, key=qty_key)
+
+            st.write(f"**{ars(item['price'])}** {t('unit_price')}")
+
+            if st.button(t("add_to_cart"), key=f"add_{item['id']}"):
+                key = cart_key(item["id"], base_code, fill_code, pack_code)
+                add_to_cart(key, int(qty_val))
+                st.session_state._last_added = (item["name"], int(qty_val))
+                st.rerun()
+
+        st.divider()
+
+# ----- Footer contact (inline title + WA button) -----
+lbl_title = {"es": "¿Querés un sitio como este?", "en": "Want a site like this?", "ru": "Хотите такой же сайт?"}[lang()]
+msg = auto_contact_message()
+wa_url = wa_chat_url(DEV_WA, msg)
+
+st.divider()
+st.markdown(
+    f"""
+    <div class="cap-contact-footer">
+      <div class="cap-contact-inline">
+        <span class="cap-contact-title">{lbl_title}</span>
+        <a class="cap-cta cap-cta--wa" href="{wa_url}" target="_blank" rel="noopener">📲 WhatsApp</a>
+      </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
