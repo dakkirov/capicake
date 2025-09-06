@@ -16,10 +16,14 @@ try:
 except Exception:
     sa_track = None
 
-# import streamlit_analytics
-
-# Start analytics. (Optional) persist to JSON so data survives restarts.
-# streamlit_analytics.start_tracking(save_to_json="analytics.json")
+try:
+    import streamlit_analytics as sa
+    sa.start_tracking(save_to_json="analytics.json")   # starts the tracker
+except Exception:
+    sa = None  # keep app running even if analytics not available
+    
+if sa:
+    sa.stop_tracking()
 
 # =========================
 # CONFIG
