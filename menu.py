@@ -25,6 +25,13 @@ except Exception:
 if sa:
     sa.stop_tracking()
 
+try:
+    import streamlit_analytics as _sa
+    _SA_CTX = _sa.track(save_to_json="analytics.json")  # file stored in app’s working dir
+    _SA_CTX.__enter__()  # begin tracking
+except Exception:
+    _SA_CTX = None
+
 # =========================
 # CONFIG
 # =========================
@@ -744,3 +751,10 @@ if sa_track:
         render_app()
 else:
     render_app()
+
+# --- end analytics context ---
+try:
+    if _SA_CTX is not None:
+        _SA_CTX.__exit__(None, None, None)  # stop tracking & (when ?analytics=on) show dashboard
+except Exception:
+    pass
