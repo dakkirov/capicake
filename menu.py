@@ -4,44 +4,25 @@ import streamlit as st
 from urllib.parse import quote_plus
 from datetime import datetime, date, time
 
-# Optional auto-width detection (safe if missing)
+# ---------- Optional helpers (safe if missing) ----------
 try:
     from streamlit_js_eval import streamlit_js_eval
 except Exception:
     streamlit_js_eval = None
 
-# Optional: streamlit-analytics
 try:
-    from streamlit_analytics import track as sa_track
+    import streamlit_analytics as sa  # pip install streamlit-analytics
 except Exception:
-    sa_track = None
-
-try:
-    import streamlit_analytics as sa
-    sa.start_tracking(save_to_json="analytics.json")   # starts the tracker
-except Exception:
-    sa = None  # keep app running even if analytics not available
-    
-if sa:
-    sa.stop_tracking()
-
-try:
-    import streamlit_analytics as _sa
-    _SA_CTX = _sa.track(save_to_json="analytics.json")  # file stored in app’s working dir
-    _SA_CTX.__enter__()  # begin tracking
-except Exception:
-    _SA_CTX = None
+    sa = None
 
 # =========================
-# CONFIG
+# CONFIG (must be first Streamlit call)
 # =========================
 st.set_page_config(page_title="Capicake — Menú & Pedido", page_icon="🧁", layout="wide")
 
 BUSINESS_PHONE = "5491162107712"   # WhatsApp Business CapiCake
 CURRENCY = "ARS $"
 MOBILE_BREAKPOINT = 768
-IMG_W_MOBILE = 5000
-IMG_W_DESKTOP = 5000
 
 # =========================
 # LANGUAGE / I18N
@@ -49,11 +30,7 @@ IMG_W_DESKTOP = 5000
 if "lang" not in st.session_state:
     st.session_state.lang = "es"  # default: Español (AR)
 
-LANGS = {
-    "es": "🇦🇷 Español (AR)",
-    "en": "🇬🇧 English",
-    "ru": "🇷🇺 Русский"
-}
+LANGS = {"es": "🇦🇷 Español (AR)", "en": "🇬🇧 English", "ru": "🇷🇺 Русский"}
 
 TR = {
     "es": {
@@ -175,7 +152,7 @@ TR = {
     },
 }
 
-# BASES
+# BASES / FILLINGS / PACKAGING
 BASES = [
     ("red_velvet", {"es": "Red velvet", "en": "Red velvet", "ru": "Красный бархат"}),
     ("chocolate",  {"es": "Chocolate", "en": "Chocolate", "ru": "Шоколадный"}),
@@ -183,8 +160,6 @@ BASES = [
     ("carrot",     {"es": "Carrot cake", "en": "Carrot",   "ru": "Морковный"}),
     ("lemon",      {"es": "Limón",     "en": "Lemon",    "ru": "Лимонный"})
 ]
-
-# FILLINGS
 FILLINGS = [
     ("strawberry_confit", {"es": "Confit de frutilla", "en": "Strawberry confit", "ru": "Клубничное конфи"}),
     ("berry",             {"es": "Frutos rojos",        "en": "Berry mix",        "ru": "Ягодная"}),
@@ -194,25 +169,10 @@ FILLINGS = [
     ("lemon_curd",        {"es": "Curd de limón",      "en": "Lemon curd",       "ru": "Лимонный курд"}),
     ("cappuccino",        {"es": "Capuchino",          "en": "Cappuccino",       "ru": "Капучино"})
 ]
-
-# PACKAGING
 PACK_LABELS = {
-    "standard": {"es": "Estandar", "en": "Standard",     "ru": "Стандартная"},
-    "custom":   {"es": "Personalizado", "en": "Custom",  "ru": "Индивидуальная"},
+    "standard": {"es": "Estandar", "en": "Standard", "ru": "Стандартная"},
+    "custom":   {"es": "Personalizado", "en": "Custom", "ru": "Индивидуальная"},
 }
-
-def lang() -> str:
-    return st.session_state.get("lang", "es")
-
-def t(key: str, **kw) -> str:
-    s = TR.get(lang(), {}).get(key, TR["es"].get(key, key))
-    return s.format(**kw) if kw else s
-
-def opt_label(options, code: str) -> str:
-    for c, labels in options:
-        if c == code:
-            return labels.get(lang(), labels["es"])
-    return code
 
 # =========================
 # DATA
@@ -227,14 +187,13 @@ MENU_ITEMS = [
 ]
 
 # =========================
-# TRACKING HELPERS (custom events + optional file flush)
+# SIMPLE CUSTOM EVENT LOG (optional)
 # =========================
 def _log_event(name: str, **props):
     ev = {"ts": datetime.now().isoformat(timespec="seconds"), "event": name, **props}
     st.session_state.setdefault("_event_log", []).append(ev)
 
 def _flush_events_to_disk():
-    # optional: write and clear buffer so long sessions don't grow unbounded
     buf = st.session_state.get("_event_log", [])
     if not buf:
         return
@@ -244,20 +203,23 @@ def _flush_events_to_disk():
                 f.write(json.dumps(ev, ensure_ascii=False) + "\n")
         st.session_state["_event_log"] = []
     except Exception:
-        # ignore write errors on ephemeral fs
         pass
 
 # =========================
 # APP HELPERS
 # =========================
-def cart_subtotal() -> int:
-    total = 0
-    for key, qty in st.session_state.get("cart", {}).items():
-        item_id, _, _, _ = parse_key(key)
-        item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
-        if item:
-            total += item["price"] * qty
-    return total
+def lang() -> str:
+    return st.session_state.get("lang", "es")
+
+def t(key: str, **kw) -> str:
+    s = TR.get(lang(), {}).get(key, TR["es"].get(key, key))
+    return s.format(**kw) if kw else s
+
+def opt_label(options, code: str) -> str:
+    for c, labels in options:
+        if c == code:
+            return labels.get(lang(), labels["es"])
+    return code
 
 def is_mobile_view() -> bool:
     manual = st.session_state.get("mobile_layout", False)
@@ -265,7 +227,7 @@ def is_mobile_view() -> bool:
     auto = (vw is not None and vw <= MOBILE_BREAKPOINT)
     return manual or auto
 
-# capture viewport once (first run returns None; rerun gives int)
+# capture viewport (first run may be None; after rerun becomes int)
 if streamlit_js_eval:
     vw = streamlit_js_eval(js_expressions='window.innerWidth', key='VW', want_output=True)
     if isinstance(vw, (int, float)):
@@ -279,6 +241,13 @@ def init_state():
         st.session_state.cart = {}
     if "cart_open" not in st.session_state:
         st.session_state.cart_open = False
+
+def init_item_defaults_once():
+    if not st.session_state.get("_defaults_seeded", False):
+        for it in MENU_ITEMS:
+            st.session_state.setdefault(f"base_{it['id']}", it.get("default_base", BASES[0][0]))
+            st.session_state.setdefault(f"fill_{it['id']}", it.get("default_filling", FILLINGS[0][0]))
+        st.session_state["_defaults_seeded"] = True
 
 def cart_key(item_id: str, base_code: str, filling_code: str, pack_code: str) -> str:
     return f"{item_id}||{base_code}||{filling_code}||{pack_code}"
@@ -296,13 +265,19 @@ def remove_from_cart(key: str):
     if key in st.session_state.cart:
         del st.session_state.cart[key]
 
+def cart_subtotal() -> int:
+    total = 0
+    for key, qty in st.session_state.get("cart", {}).items():
+        item_id, _, _, _ = parse_key(key)
+        item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
+        if item:
+            total += item["price"] * qty
+    return total
+
 def build_message(cart_lines, subtotal, buyer, modality_label, when_txt, address, notes, custom_pack_flag):
     lines = [t("msg_hi"), ""]
     lines += cart_lines
-    if custom_pack_flag:
-        lines += ["", t("msg_subtotal_no_custom", subtotal=ars(subtotal))]
-    else:
-        lines += ["", t("msg_subtotal", subtotal=ars(subtotal))]
+    lines += [("", t("msg_subtotal_no_custom") if custom_pack_flag else t("msg_subtotal"))[1].format(subtotal=ars(subtotal))]
     lines += [t("msg_mode", mode=modality_label)]
     if when_txt: lines.append(t("msg_when", when=when_txt))
     if address and modality_label.lower().startswith(("deliv","deli","delivery","entrega","del")):
@@ -316,15 +291,7 @@ def build_message(cart_lines, subtotal, buyer, modality_label, when_txt, address
 def whatsapp_url(message: str) -> str:
     return f"https://wa.me/{BUSINESS_PHONE}?text={quote_plus(message)}"
 
-def init_item_defaults_once():
-    if not st.session_state.get("_defaults_seeded", False):
-        for it in MENU_ITEMS:
-            st.session_state.setdefault(f"base_{it['id']}", it.get("default_base", BASES[0][0]))
-            st.session_state.setdefault(f"fill_{it['id']}", it.get("default_filling", FILLINGS[0][0]))
-        st.session_state["_defaults_seeded"] = True
-
 DEV_WA = "541162109738"
-
 def wa_chat_url(phone: str, text: str) -> str:
     return f"https://wa.me/{phone}?text={quote_plus(text)}"
 
@@ -343,11 +310,7 @@ def auto_contact_message() -> str:
         "ru": "Здравствуйте! Увидел(а) сайт Capicake и хочу похожий для моего бизнеса. Сфера: ____ . Можно обсудить? 😊",
     }.get(lang(), "Hi! I saw the Capicake site and I'd love something similar for my business. Can we chat? 😊")
     ts = datetime.now().strftime("%Y-%m-%d %H:%M")
-    tail = {
-        "es": f" (mensaje auto-generado {ts})",
-        "en": f" (auto-generated message {ts})",
-        "ru": f" (авто-сообщение {ts})",
-    }.get(lang(), f" (auto-generated {ts})")
+    tail = {"es": f" (mensaje auto-generado {ts})", "en": f" (auto-generated message {ts})", "ru": f" (авто-сообщение {ts})"}.get(lang(), f" (auto-generated {ts})")
     return base + ctx + " " + tail
 
 # =========================
@@ -385,6 +348,7 @@ st.markdown("""
   .cart-panel{ position: sticky; top: 1rem; }
   .cap-mini-note{ font-size:.85rem; color:#7A7A7A; margin-top:.25rem; }
 
+  /* Floating Cart button (mobile only) */
   @media (max-width: 768px){
     .cap-cart-fab{
       position: fixed; right: 16px; bottom: calc(88px + env(safe-area-inset-bottom)); z-index: 10000;
@@ -404,51 +368,28 @@ st.markdown("""
   .cap-back-btn:hover{ background: rgba(0,0,0,.04); opacity: 1; }
   @media (min-width: 769px){ .cap-back-btn{ display:none; } }
 
-  /* Footer */
+  /* Footer contact inline */
   .cap-contact-footer{ max-width: 900px; margin: 2rem auto 1.2rem; padding: 1.1rem; background:#FFF; border:1px solid var(--cap-border); border-radius:16px; text-align:center; }
-  .cap-contact-title{ margin:.1rem 0 .75rem; font-weight:800; font-size:1.15rem; }
-  .cap-contact-actions{ display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; }
+  .cap-contact-inline{ display:flex; align-items:center; justify-content:center; gap:.6rem; flex-wrap: nowrap; margin:.2rem 0 .6rem; }
+  .cap-contact-title{ margin:0; font-weight:800; font-size:1.05rem; }
   .cap-cta, .cap-cta:link, .cap-cta:visited, .cap-cta:hover, .cap-cta:active{ display:inline-flex; align-items:center; gap:.5rem; padding:.6rem 1rem; border-radius:12px; font-weight:800; text-decoration:none !important; color:#fff !important; }
-  .cap-cta--ig{ background: linear-gradient(45deg,#f58529,#dd2a7b,#8134af,#515bd4); }
   .cap-cta--wa{ background:#25D366; }
-  .cap-contact-inline{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:.6rem;
-      flex-wrap: nowrap;          /* keep on one line */
-      margin:.2rem 0 .6rem;
-    }
-    @media (max-width: 420px){
-      .cap-contact-inline{ flex-wrap: wrap; } /* allow wrap on tiny phones */
-    }
-  .cap-contact-inline .cap-contact-title{ margin:0; font-weight:800; font-size:1.05rem; }
-  .cap-contact-inline .cap-cta--wa{ margin-left:.1rem; }
 </style>
 """, unsafe_allow_html=True)
 
 # =========================
-# STATE INIT & TOAST
+# CORE RENDER
 # =========================
-init_state()
-init_item_defaults_once()
+def main():
+    init_state()
+    init_item_defaults_once()
 
-# one-time page load event
-if not st.session_state.get("_page_seen"):
-    _log_event("page_load", lang=lang(), viewport=st.session_state.get("_viewport_w"))
-    st.session_state["_page_seen"] = True
+    # one-time page load event
+    if not st.session_state.get("_page_seen"):
+        _log_event("page_load", lang=lang(), viewport=st.session_state.get("_viewport_w"))
+        st.session_state["_page_seen"] = True
 
-if "_last_added" in st.session_state:
-    name, q = st.session_state.pop("_last_added")
-    try:
-        st.toast((f"Agregado: {name} x{q}" if lang()=="es" else f"Added: {name} x{q}"), icon="🧁")
-    except Exception:
-        pass
-
-def render_app():
-    # =========================
-    # HEADER with Logo + Title + Language selector (+ track change)
-    # =========================
+    # ----- Header -----
     prev_lang = lang()
     if is_mobile_view():
         h1, h2 = st.columns([0.22, 0.22], gap="small")
@@ -457,13 +398,11 @@ def render_app():
             st.markdown(f"<h1 style='margin:0'>{t('title')}</h1>", unsafe_allow_html=True)
             st.caption(t("subtitle"))
         with h2:
-            st.selectbox(
-                "Language / Idioma",
-                options=list(LANGS.keys()),
-                index=list(LANGS.keys()).index(lang()),
-                format_func=lambda k: LANGS[k],
-                key="lang"
-            )
+            st.selectbox("Language / Idioma",
+                         options=list(LANGS.keys()),
+                         index=list(LANGS.keys()).index(lang()),
+                         format_func=lambda k: LANGS[k],
+                         key="lang")
     else:
         h1, h2, h3 = st.columns([0.12, 0.75, 0.22], gap="small")
         with h1:
@@ -472,25 +411,20 @@ def render_app():
             st.markdown(f"<h1 style='margin:0'>{t('title')}</h1>", unsafe_allow_html=True)
             st.caption(t("subtitle"))
         with h3:
-            st.selectbox(
-                "Language / Idioma",
-                options=list(LANGS.keys()),
-                index=list(LANGS.keys()).index(lang()),
-                format_func=lambda k: LANGS[k],
-                key="lang"
-            )
-
+            st.selectbox("Language / Idioma",
+                         options=list(LANGS.keys()),
+                         index=list(LANGS.keys()).index(lang()),
+                         format_func=lambda k: LANGS[k],
+                         key="lang")
     if lang() != prev_lang:
         _log_event("lang_change", old=prev_lang, new=lang())
 
     st.divider()
 
-    # =========================
-    # LAYOUT: Menu (left) | Cart (right)
-    # =========================
+    # ----- Layout -----
     left, right = st.columns([3, 1], gap=("small" if is_mobile_view() else "large"))
 
-    # -------- RIGHT: CART --------
+    # ===== RIGHT: CART =====
     with right:
         st.markdown("<div id='cart-section'></div>", unsafe_allow_html=True)
         st.markdown(f"### 🛒 {t('cart')}")
@@ -536,26 +470,22 @@ def render_app():
                     for key, qty in list(st.session_state.cart.items()):
                         item_id, base_code, fill_code, pack_code = parse_key(key)
                         item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
-                        if not item:
-                            continue
+                        if not item: continue
                         base_label = opt_label(BASES, base_code)
                         fill_label = opt_label(FILLINGS, fill_code)
                         pack_label = PACK_LABELS[pack_code][lang()]
                         st.write(f"**{item['name']}** · x{qty}")
                         st.caption(f"{t('base')}: {base_label} · {t('filling')}: {fill_label} · {t('packaging')}: {pack_label}")
-                        if pack_code == "custom":
-                            st.caption(t("pack_note"))
+                        if pack_code == "custom": st.caption(t("pack_note"))
                         st.write(f"{t('item_total')}: **{ars(item['price'] * qty)}**")
                         if st.button(t("remove"), key=f"rm_{key}"):
                             _log_event("remove_from_cart", key=key, qty=qty, value=item["price"]*qty)
-                            remove_from_cart(key)
-                            st.rerun()
+                            remove_from_cart(key); st.rerun()
                 else:
                     for key, qty in list(st.session_state.cart.items()):
                         item_id, base_code, fill_code, pack_code = parse_key(key)
                         item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
-                        if not item:
-                            continue
+                        if not item: continue
                         base_label = opt_label(BASES, base_code)
                         fill_label = opt_label(FILLINGS, fill_code)
                         pack_label = PACK_LABELS[pack_code][lang()]
@@ -566,60 +496,50 @@ def render_app():
                         with c2:
                             st.write(f"**{item['name']}** · x{qty}")
                             st.caption(f"{t('base')}: {base_label} · {t('filling')}: {fill_label} · {t('packaging')}: {pack_label}")
-                            if pack_code == "custom":
-                                st.caption(t("pack_note"))
+                            if pack_code == "custom": st.caption(t("pack_note"))
                             st.write(f"{t('item_total')}: **{ars(item['price'] * qty)}**")
                             if st.button(t("remove"), key=f"rm_{key}"):
                                 _log_event("remove_from_cart", key=key, qty=qty, value=item["price"]*qty)
-                                remove_from_cart(key)
-                                st.rerun()
+                                remove_from_cart(key); st.rerun()
 
-        # mobile-only back-to-menu button (anchor)
+        # mobile-only back-to-menu link
         if is_mobile_view():
             back_lbl = {"es": "⬆️ Volver al menú", "en": "⬆️ Back to menu", "ru": "⬆️ Вверх к меню"}[lang()]
             st.markdown(f"<a href='#menu-start' class='cap-back-btn'>{back_lbl}</a>", unsafe_allow_html=True)
 
-        # Order form
+        # ----- Order form -----
         st.divider()
         st.markdown(f"#### {t('order_details')}")
         buyer = st.text_input(t("name"), placeholder=("Tu nombre" if lang()=="es" else "Your name"))
         modality_label = st.radio(t("mode"), [t("pickup"), t("delivery")], index=0, horizontal=True)
 
-        # tracked date toggle
-        prev_use_date = st.session_state.get("use_date", False)
         col_dt1, col_dt2 = st.columns(2)
         with col_dt1:
             use_date = st.checkbox(t("choose_dt"), key="use_date")
-        if use_date != prev_use_date:
-            _log_event("toggle_datepicker", enabled=use_date)
-
+        when_txt = ""
         if use_date:
             with col_dt1: d = st.date_input(t("date"), value=date.today(), key="date_pick")
             with col_dt2: tm = st.time_input(t("time"), value=time(18, 0), key="time_pick")
             when_txt = f"{d.strftime('%d/%m/%Y')} {tm.strftime('%H:%M')}"
-        else:
-            when_txt = ""
 
         address = st.text_input(t("address"),
                                 placeholder=("Calle, número, piso…" if lang()=="es" else "Street, number, floor…"))
         notes = st.text_area(t("notes"),
                              placeholder=("Ej: Sin frutos secos" if lang()=="es" else "E.g., no nuts"))
 
-        # Checkout: use a button to log, then open WA in new tab
         if cart_lines:
             msg = build_message(cart_lines, subtotal, buyer, modality_label, when_txt, address, notes, custom_pack_flag)
             if st.button(t("wa_send"), key="wa_checkout_btn"):
                 _log_event("wa_checkout", subtotal=subtotal, items=items_count, has_custom=custom_pack_flag)
                 if streamlit_js_eval:
                     streamlit_js_eval(js_expressions=f"window.open('{whatsapp_url(msg)}','_blank')",
-                                      key=f"WA_OPEN_{subtotal}_{items_count}",
-                                      want_output=False)
+                                      key=f"WA_OPEN_{subtotal}_{items_count}", want_output=False)
                 else:
                     st.markdown(f"[{t('wa_send')}]({whatsapp_url(msg)})")
         else:
             st.button(t("wa_send"), disabled=True)
 
-    # -------- LEFT: MENU — items --------
+    # ===== LEFT: MENU =====
     with left:
         st.markdown("<div id='menu-start'></div>", unsafe_allow_html=True)
         st.info(t("notice_title"))
@@ -636,7 +556,7 @@ def render_app():
 
             with col_img:
                 if item.get("image") and os.path.exists(item["image"]):
-                    st.image(item["image"], width=IMG_W_DESKTOP)
+                    st.image(item["image"], use_container_width=True)  # crisp, fits column
                 else:
                     st.markdown("🧁")
 
@@ -649,9 +569,7 @@ def render_app():
                 base_options = [c for c, _ in BASES]
                 fill_options = [c for c, _ in FILLINGS]
 
-                def idx(opts, code):
-                    return opts.index(code) if code in opts else 0
-
+                def idx(opts, code): return opts.index(code) if code in opts else 0
                 base_idx = idx(base_options, st.session_state.get(base_state_key, base_options[0]))
                 fill_idx = idx(fill_options, st.session_state.get(fill_state_key, fill_options[0]))
 
@@ -696,29 +614,21 @@ def render_app():
 
                 if st.button(t("add_to_cart"), key=f"add_{item['id']}"):
                     key = cart_key(item["id"], base_code, fill_code, pack_code)
-                    add_to_cart(key, qty_val)
+                    add_to_cart(key, int(qty_val))
                     _log_event("add_to_cart",
                                item_id=item["id"], item_name=item["name"],
                                base=base_code, filling=fill_code,
                                qty=int(qty_val), value=item["price"] * int(qty_val))
-                    st.session_state._last_added = (item["name"], qty_val)
+                    st.session_state._last_added = (item["name"], int(qty_val))
                     st.rerun()
 
-            if is_mobile_view():
-                st.divider()
-            else:
-                st.subheader("")
+            st.divider()
 
-    # ---------- CONTACT FOOTER ----------
-    lbl_title = {
-        "es": "¿Querés un sitio como este?",
-        "en": "Want a site like this?",
-        "ru": "Хотите такой же сайт?",
-    }[lang()]
-    
+    # ----- Footer contact (inline title + WA button) -----
+    lbl_title = {"es": "¿Querés un sitio como este?", "en": "Want a site like this?", "ru": "Хотите такой же сайт?"}[lang()]
     msg = auto_contact_message()
     wa_url = wa_chat_url(DEV_WA, msg)
-    
+
     st.divider()
     st.markdown(
         f"""
@@ -730,8 +640,9 @@ def render_app():
         </div>
         """,
         unsafe_allow_html=True
-        )
-    
+    )
+
+    # Optional extra tracker for footer click (fallback link above already works)
     if st.button("📲 WhatsApp", key="footer_wa_btn"):
         _log_event("contact_whatsapp_footer", msg_len=len(msg))
         if streamlit_js_eval:
@@ -740,21 +651,13 @@ def render_app():
         else:
             st.markdown(f"[📲 WhatsApp]({wa_url})")
 
-    # Periodically flush custom events to disk
     _flush_events_to_disk()
 
 # =========================
-# RUN (with streamlit-analytics if available)
+# RUN (show analytics dashboard at ?analytics=on)
 # =========================
-if sa_track:
-    with sa_track(unsafe_password=None):  # open /?analytics=on to view the built-in dashboard
-        render_app()
+if sa:
+    with sa.track(save_to_json="analytics.json", load_from_json="analytics.json", unsafe_password=None):
+        main()
 else:
-    render_app()
-
-# --- end analytics context ---
-try:
-    if _SA_CTX is not None:
-        _SA_CTX.__exit__(None, None, None)  # stop tracking & (when ?analytics=on) show dashboard
-except Exception:
-    pass
+    main()
