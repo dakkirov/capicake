@@ -1,24 +1,22 @@
 # capicake_menu.py
-import os
+import os, json
 import streamlit as st
 from urllib.parse import quote_plus
 from datetime import datetime, date, time
 
-# ---------- streamlit-analytics: SIMPLE + RELIABLE ----------
-try:
-    import streamlit_analytics  # pip install streamlit-analytics
-    streamlit_analytics.start_tracking(save_to_json="analytics.json")
-except Exception:
-    streamlit_analytics = None  # app still runs even if package missing
-
-# ---------- Optional viewport helper (safe if missing) ----------
+# ---------- Optional helpers (safe if missing) ----------
 try:
     from streamlit_js_eval import streamlit_js_eval
 except Exception:
     streamlit_js_eval = None
 
+try:
+    import streamlit_analytics as sa  # pip install streamlit-analytics
+except Exception:
+    sa = None
+
 # =========================
-# CONFIG
+# CONFIG (must be first Streamlit call)
 # =========================
 st.set_page_config(page_title="Capicake — Menú & Pedido", page_icon="🧁", layout="wide")
 
@@ -189,7 +187,26 @@ MENU_ITEMS = [
 ]
 
 # =========================
-# HELPERS
+# SIMPLE CUSTOM EVENT LOG (optional)
+# =========================
+def _log_event(name: str, **props):
+    ev = {"ts": datetime.now().isoformat(timespec="seconds"), "event": name, **props}
+    st.session_state.setdefault("_event_log", []).append(ev)
+
+def _flush_events_to_disk():
+    buf = st.session_state.get("_event_log", [])
+    if not buf:
+        return
+    try:
+        with open("events.log", "a", encoding="utf-8") as f:
+            for ev in buf:
+                f.write(json.dumps(ev, ensure_ascii=False) + "\n")
+        st.session_state["_event_log"] = []
+    except Exception:
+        pass
+
+# =========================
+# APP HELPERS
 # =========================
 def lang() -> str:
     return st.session_state.get("lang", "es")
@@ -361,13 +378,19 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =========================
-# APP
+# CORE RENDER
 # =========================
 def main():
     init_state()
     init_item_defaults_once()
 
+    # one-time page load event
+    if not st.session_state.get("_page_seen"):
+        _log_event("page_load", lang=lang(), viewport=st.session_state.get("_viewport_w"))
+        st.session_state["_page_seen"] = True
+
     # ----- Header -----
+    prev_lang = lang()
     if is_mobile_view():
         h1, h2 = st.columns([0.22, 0.22], gap="small")
         with h1:
@@ -393,6 +416,8 @@ def main():
                          index=list(LANGS.keys()).index(lang()),
                          format_func=lambda k: LANGS[k],
                          key="lang")
+    if lang() != prev_lang:
+        _log_event("lang_change", old=prev_lang, new=lang())
 
     st.divider()
 
@@ -411,7 +436,8 @@ def main():
         for key, qty in st.session_state.cart.items():
             item_id, base_code, fill_code, pack_code = parse_key(key)
             item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
-            if not item: continue
+            if not item:
+                continue
             line_total = item["price"] * qty
             subtotal += line_total
             items_count += qty
@@ -435,6 +461,7 @@ def main():
             st.markdown('<div class="subtotal-btn">', unsafe_allow_html=True)
             if st.button(label, key="toggle_cart", use_container_width=True):
                 st.session_state.cart_open = not st.session_state.cart_open
+                _log_event("cart_toggle", open=st.session_state.cart_open, items=items_count, subtotal=subtotal)
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
 
@@ -452,6 +479,7 @@ def main():
                         if pack_code == "custom": st.caption(t("pack_note"))
                         st.write(f"{t('item_total')}: **{ars(item['price'] * qty)}**")
                         if st.button(t("remove"), key=f"rm_{key}"):
+                            _log_event("remove_from_cart", key=key, qty=qty, value=item["price"]*qty)
                             remove_from_cart(key); st.rerun()
                 else:
                     for key, qty in list(st.session_state.cart.items()):
@@ -471,6 +499,7 @@ def main():
                             if pack_code == "custom": st.caption(t("pack_note"))
                             st.write(f"{t('item_total')}: **{ars(item['price'] * qty)}**")
                             if st.button(t("remove"), key=f"rm_{key}"):
+                                _log_event("remove_from_cart", key=key, qty=qty, value=item["price"]*qty)
                                 remove_from_cart(key); st.rerun()
 
         # mobile-only back-to-menu link
@@ -501,7 +530,7 @@ def main():
         if cart_lines:
             msg = build_message(cart_lines, subtotal, buyer, modality_label, when_txt, address, notes, custom_pack_flag)
             if st.button(t("wa_send"), key="wa_checkout_btn"):
-                # open WA
+                _log_event("wa_checkout", subtotal=subtotal, items=items_count, has_custom=custom_pack_flag)
                 if streamlit_js_eval:
                     streamlit_js_eval(js_expressions=f"window.open('{whatsapp_url(msg)}','_blank')",
                                       key=f"WA_OPEN_{subtotal}_{items_count}", want_output=False)
@@ -526,4 +555,109 @@ def main():
             col_img, col_opts, col_action = st.columns([0.8, 1.4, 1.2], gap="small")
 
             with col_img:
-                if item.get("image") and os.path.ex
+                if item.get("image") and os.path.exists(item["image"]):
+                    st.image(item["image"], use_container_width=True)  # crisp, fits column
+                else:
+                    st.markdown("🧁")
+
+            with col_opts:
+                base_state_key = f"base_{item['id']}"
+                fill_state_key = f"fill_{item['id']}"
+                base_widget_key = f"{base_state_key}_w"
+                fill_widget_key = f"{fill_state_key}_w"
+
+                base_options = [c for c, _ in BASES]
+                fill_options = [c for c, _ in FILLINGS]
+
+                def idx(opts, code): return opts.index(code) if code in opts else 0
+                base_idx = idx(base_options, st.session_state.get(base_state_key, base_options[0]))
+                fill_idx = idx(fill_options, st.session_state.get(fill_state_key, fill_options[0]))
+
+                prev_base = st.session_state.get(base_state_key, base_options[0])
+                prev_fill = st.session_state.get(fill_state_key, fill_options[0])
+
+                st.selectbox(t("base"), options=base_options, index=base_idx,
+                             format_func=lambda c: opt_label(BASES, c), key=base_widget_key)
+                st.selectbox(t("filling"), options=fill_options, index=fill_idx,
+                             format_func=lambda c: opt_label(FILLINGS, c), key=fill_widget_key)
+
+                st.session_state[base_state_key] = st.session_state[base_widget_key]
+                st.session_state[fill_state_key] = st.session_state[fill_widget_key]
+
+                if st.session_state[base_state_key] != prev_base:
+                    _log_event("base_change", item_id=item["id"], base=st.session_state[base_state_key])
+                if st.session_state[fill_state_key] != prev_fill:
+                    _log_event("filling_change", item_id=item["id"], filling=st.session_state[fill_state_key])
+
+                base_code = st.session_state[base_state_key]
+                fill_code = st.session_state[fill_state_key]
+
+            with col_action:
+                pack_key = f"pack_{item['id']}"
+                prev_pack = st.session_state.get(pack_key, "standard")
+                pack_code = st.radio(t("packaging"), options=["standard", "custom"],
+                                     horizontal=True, format_func=lambda c: PACK_LABELS[c][lang()],
+                                     key=pack_key)
+                if pack_code != prev_pack:
+                    _log_event("pack_change", item_id=item["id"], pack=pack_code)
+
+                if pack_code == "custom":
+                    st.caption(t("pack_note"))
+
+                qty_key = f"qty_{item['id']}"
+                prev_qty = st.session_state.get(qty_key, 6)
+                qty_val = st.number_input(t("qty6"), min_value=6, value=prev_qty, step=1, key=qty_key)
+                if qty_val != prev_qty:
+                    _log_event("qty_change", item_id=item["id"], qty=int(qty_val))
+
+                st.write(f"**{ars(item['price'])}** {t('unit_price')}")
+
+                if st.button(t("add_to_cart"), key=f"add_{item['id']}"):
+                    key = cart_key(item["id"], base_code, fill_code, pack_code)
+                    add_to_cart(key, int(qty_val))
+                    _log_event("add_to_cart",
+                               item_id=item["id"], item_name=item["name"],
+                               base=base_code, filling=fill_code,
+                               qty=int(qty_val), value=item["price"] * int(qty_val))
+                    st.session_state._last_added = (item["name"], int(qty_val))
+                    st.rerun()
+
+            st.divider()
+
+    # ----- Footer contact (inline title + WA button) -----
+    lbl_title = {"es": "¿Querés un sitio como este?", "en": "Want a site like this?", "ru": "Хотите такой же сайт?"}[lang()]
+    msg = auto_contact_message()
+    wa_url = wa_chat_url(DEV_WA, msg)
+
+    st.divider()
+    st.markdown(
+        f"""
+        <div class="cap-contact-footer">
+          <div class="cap-contact-inline">
+            <span class="cap-contact-title">{lbl_title}</span>
+            <a class="cap-cta cap-cta--wa" href="{wa_url}" target="_blank" rel="noopener">📲 WhatsApp</a>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Optional extra tracker for footer click (fallback link above already works)
+    if st.button("📲 WhatsApp", key="footer_wa_btn"):
+        _log_event("contact_whatsapp_footer", msg_len=len(msg))
+        if streamlit_js_eval:
+            streamlit_js_eval(js_expressions=f"window.open('{wa_url}','_blank')",
+                              key="WA_CONTACT_OPEN", want_output=False)
+        else:
+            st.markdown(f"[📲 WhatsApp]({wa_url})")
+
+    _flush_events_to_disk()
+
+# =========================
+# RUN (show analytics dashboard at ?analytics=on)
+# =========================
+if sa:
+    with sa.track(save_to_json="analytics.json", load_from_json="analytics.json", unsafe_password=None):
+        main()
+else:
+    main()
