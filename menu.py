@@ -19,7 +19,7 @@ except Exception:
 # import streamlit_analytics
 
 # Start analytics. (Optional) persist to JSON so data survives restarts.
-streamlit_analytics.start_tracking(save_to_json="analytics.json")
+# streamlit_analytics.start_tracking(save_to_json="analytics.json")
 
 # =========================
 # CONFIG
