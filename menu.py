@@ -2,7 +2,7 @@
 import os
 import streamlit as st
 from urllib.parse import quote_plus
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta  # add timedelta
 
 # ---------- Optional helpers (safe if missing) ----------
 try:
@@ -20,6 +20,7 @@ CURRENCY = "ARS $"
 MOBILE_BREAKPOINT = 768
 DISCOUNT_RATE_FIRST = 0.10  # 10% OFF first order
 DISCOUNT_RATE_SET12 = 0.10  # extra 10% OFF when total qty of same item in cart >= 12
+MIN_LEAD_DAYS = 3  # earliest order = today + 3 days
 
 # =========================
 # LANGUAGE / I18N
@@ -76,6 +77,7 @@ TR = {
         "notice_title": "ℹ️ Diseño artesanal: puede variar",
         "qty_invalid": "⚠️ Solo se permiten cantidades múltiplos de 6 (6, 12, 18…).",
         "set12_note": "Aplicado +10% por set de 12+ del mismo tipo.",
+        "earliest_date_note": "Primer turno disponible: {when}",
     },
     "en": {
         "title": "Menu & Order",
@@ -123,6 +125,7 @@ TR = {
         "notice_title": "ℹ️ Handmade design: variations may occur",
         "qty_invalid": "⚠️ Only multiples of 6 are allowed (6, 12, 18…).",
         "set12_note": "Extra 10% applied for 12+ of the same type.",
+        "earliest_date_note": "Earliest available: {when}",
     },
     "ru": {
         "title": "Меню и заказ",
@@ -170,6 +173,7 @@ TR = {
         "notice_title": "ℹ️ Ручная работа: возможны отличия",
         "qty_invalid": "⚠️ Разрешены только количества, кратные 6 (6, 12, 18…).",
         "set12_note": "Применена доп. скидка −10% за 12+ одного вида.",
+        "earliest_date_note": "Самая ранняя дата: {when}",
     },
 }
 
@@ -601,10 +605,25 @@ def main():
         col_dt1, col_dt2 = st.columns(2)
         with col_dt1:
             use_date = st.checkbox(t("choose_dt"), key="use_date")
+        
         when_txt = ""
         if use_date:
-            with col_dt1: d = st.date_input(t("date"), value=date.today(), key="date_pick")
-            with col_dt2: tm = st.time_input(t("time"), value=time(18, 0), key="time_pick")
+            earliest_date = date.today() + timedelta(days=MIN_LEAD_DAYS)
+            with col_dt1:
+                d = st.date_input(
+                    t("date"),
+                    value=earliest_date,         # default to earliest allowed
+                    min_value=earliest_date,     # 🚫 no earlier than +3 days
+                    key="date_pick"
+                )
+                # (optional) friendly note under the calendar
+                st.caption(
+                    t("earliest_date_note", when=d.strftime('%d/%m/%Y'))
+                    if "earliest_date_note" in TR.get(lang(), {})
+                    else f"Earliest available: {earliest_date.strftime('%d/%m/%Y')}"
+                )
+            with col_dt2:
+                tm = st.time_input(t("time"), value=time(18, 0), key="time_pick")
             when_txt = f"{d.strftime('%d/%m/%Y')} {tm.strftime('%H:%M')}"
 
         address = st.text_input(t("address"),
@@ -612,6 +631,12 @@ def main():
         notes = st.text_area(t("notes"),
                              placeholder=("Ej: Sin frutos secos" if lang()=="es" else "E.g., no nuts"))
 
+        if st.session_state.get("use_date"):
+            earliest_date = date.today() + timedelta(days=MIN_LEAD_DAYS)
+            if st.session_state.get("date_pick") and st.session_state["date_pick"] < earliest_date:
+                st.error(f"{t('date')} ≥ {earliest_date.strftime('%d/%m/%Y')}")
+                st.stop()
+                
         # Build final message + WA button
         if st.session_state.get("cart"):
             _, subtotal_disc, item_totals = totals_after_discounts()
