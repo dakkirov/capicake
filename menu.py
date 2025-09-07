@@ -458,7 +458,7 @@ st.markdown("""
   .cap-note-red{
       color: var(--cap-red) !important;
       font-weight: 400;
-      margin-top: .05rem;
+      margin-bottom: .25rem;
     }
 </style>
 """, unsafe_allow_html=True)
