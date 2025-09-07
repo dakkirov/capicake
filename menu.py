@@ -56,7 +56,7 @@ TR = {
         "base": "Base (bizcochuelo)",
         "filling": "Relleno",
         "packaging": "Packaging",
-        "qty6": "Cantidad (mín. 6)",
+        "qty6": "Cantidad (mín. 6, múltiplos de 6)",
         "add_to_cart": "Agregar al carrito",
         "pack_note": "Packaging personalizado: costo adicional a definir por WhatsApp según el diseño.",
         "msg_hi": "Hola CapiCake! Quiero hacer este pedido:",
@@ -71,6 +71,7 @@ TR = {
         "msg_discount_applied": "Incluye 10% de descuento por primer pedido.",
         "msg_end": "¿Me confirmás disponibilidad y total? ¡Gracias! 🧁",
         "notice_title": "ℹ️ Diseño artesanal: puede variar",
+        "qty_invalid": "⚠️ Solo se permiten cantidades múltiplos de 6 (6, 12, 18…).",
     },
     "en": {
         "title": "Menu & Order",
@@ -99,7 +100,7 @@ TR = {
         "base": "Base (cake)",
         "filling": "Filling",
         "packaging": "Packaging",
-        "qty6": "Quantity (min. 6)",
+        "qty6": "Quantity (min 6, multiples of 6)",
         "add_to_cart": "Add to cart",
         "pack_note": "Custom packaging: extra cost to be agreed on WhatsApp depending on the design.",
         "msg_hi": "Hi CapiCake! I'd like to place this order:",
@@ -114,6 +115,7 @@ TR = {
         "msg_discount_applied": "Includes 10% first-order discount.",
         "msg_end": "Could you confirm availability and total? Thanks! 🧁",
         "notice_title": "ℹ️ Handmade design: variations may occur",
+        "qty_invalid": "⚠️ Only multiples of 6 are allowed (6, 12, 18…).",
     },
     "ru": {
         "title": "Меню и заказ",
@@ -142,7 +144,7 @@ TR = {
         "base": "Основа (бисквит)",
         "filling": "Начинка",
         "packaging": "Упаковка",
-        "qty6": "Количество (мин. 6)",
+        "qty6": "Количество (мин. 6, кратно 6)",
         "add_to_cart": "Добавить в корзину",
         "pack_note": "Индивидуальная упаковка: доп. стоимость согласовывается в WhatsApp в зависимости от дизайна.",
         "msg_hi": "Здравствуйте, CapiCake! Хочу оформить заказ:",
@@ -157,6 +159,7 @@ TR = {
         "msg_discount_applied": "Включает 10% скидку за первый заказ.",
         "msg_end": "Подтвердите, пожалуйста, доступность и итоговую стоимость. Спасибо! 🧁",
         "notice_title": "ℹ️ Ручная работа: возможны отличия",
+        "qty_invalid": "⚠️ Разрешены только количества, кратные 6 (6, 12, 18…).",
     },
 }
 
@@ -186,12 +189,12 @@ PACK_LABELS = {
 # DATA
 # =========================
 MENU_ITEMS = [
-    {"id":"carrot_charm","name":"Carrot Charm","price":8300,"image":"images/orange.png","default_base":"carrot","default_filling":"passionfruit"},
-    {"id":"lemon_bliss","name":"Lemon Bliss","price":8300,"image":"images/yellow.png","default_base":"lemon","default_filling":"lemon_curd"},
-    {"id":"velvet_bloom","name":"Velvet Bloom","price":8300,"image":"images/velvet.png","default_base":"red_velvet","default_filling":"berry"},
-    {"id":"pink_dream","name":"Pink Dream","price":8300,"image":"images/rose.png","default_base":"vanilla","default_filling":"strawberry_confit"},
-    {"id":"blue_dream","name":"Blue Dream","price":8300,"image":"images/blue.png","default_base":"vanilla","default_filling":"strawberry_confit"},
-    {"id":"romance","name":"Romance","price":8300,"image":"images/joya_rosa.png","default_base":"vanilla","default_filling":"strawberry_confit"},
+    {"id":"carrot_charm","name":"Carrot Charm","price":7500,"image":"images/orange.png","default_base":"carrot","default_filling":"passionfruit"},
+    {"id":"lemon_bliss","name":"Lemon Bliss","price":7500,"image":"images/yellow.png","default_base":"lemon","default_filling":"lemon_curd"},
+    {"id":"velvet_bloom","name":"Velvet Bloom","price":7500,"image":"images/velvet.png","default_base":"red_velvet","default_filling":"berry"},
+    {"id":"pink_dream","name":"Pink Dream","price":7500,"image":"images/rose.png","default_base":"vanilla","default_filling":"strawberry_confit"},
+    {"id":"blue_dream","name":"Blue Dream","price":7500,"image":"images/blue.png","default_base":"vanilla","default_filling":"strawberry_confit"},
+    {"id":"romance","name":"Romance","price":7500,"image":"images/joya_rosa.png","default_base":"vanilla","default_filling":"strawberry_confit"},
 ]
 
 # =========================
@@ -249,7 +252,8 @@ def parse_key(key: str):
     return parts[0], parts[1], parts[2], parts[3]
 
 def add_to_cart(key: str, qty: int):
-    if qty > 0:
+    """Guard: only multiples of 6 allowed."""
+    if qty >= 6 and qty % 6 == 0:
         st.session_state.cart[key] = st.session_state.cart.get(key, 0) + qty
 
 def remove_from_cart(key: str):
@@ -283,10 +287,8 @@ def totals_after_discount():
 def build_message(cart_lines, subtotal_after, buyer, modality_label, when_txt, address, notes, custom_pack_flag):
     lines = [t("msg_hi"), ""]
     lines += cart_lines
-    # Subtotal text (use "...no_custom" if custom pack exists)
     sub_key = "msg_subtotal_no_custom" if custom_pack_flag else "msg_subtotal"
     lines += [TR[lang()][sub_key].format(subtotal=ars(subtotal_after))]
-    # Discount note if applied
     if discount_active():
         lines.append(t("msg_discount_applied"))
     lines += [t("msg_mode", mode=modality_label)]
@@ -318,7 +320,7 @@ def auto_contact_message() -> str:
             "ru": f" Сейчас пробовал(а) сайт (текущая сумма {ars(sub_d)}).",
         }.get(lang(), "")
     base = {
-        "es": "¡Hola! Vi el sitio de Capicake y quiero algo similar для mi negocio. Mi rubro: ____ . ¿Podemos hablar? 😊",
+        "es": "¡Hola! Vi el sitio de Capicake y quiero algo similar para mi negocio. Mi rubro: ____ . ¿Podemos hablar? 😊",
         "en": "Hi! I saw the Capicake site and I'd love something similar for my business. Industry: ____ . Can we chat? 😊",
         "ru": "Здравствуйте! Увидел(а) сайт Capicake и хочу похожий для моего бизнеса. Сфера: ____ . Можно обсудить? 😊",
     }.get(lang(), "Hi! I saw the Capicake site and I'd love something similar for my business. Can we chat? 😊")
@@ -404,6 +406,21 @@ st.markdown("""
   .cap-cta--wa{ background:#25D366; }
 </style>
 """, unsafe_allow_html=True)
+
+# =========================
+# UI HELPERS (HTML-safe blocks)
+# =========================
+def render_price_pair(label: str, old_amt: str, new_amt: str):
+    st.markdown(
+        f"""
+        <div class="cap-price">
+          <strong>{label}:</strong>
+          <span class="price-old">{old_amt}</span>
+          <span class="price-new">{new_amt}</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 # =========================
 # CORE RENDER
@@ -500,7 +517,8 @@ def main():
             items_count = sum(st.session_state.cart.values())
             plural = "" if (lang()=="en" and items_count==1) else ("s" if lang()=="en" else "")
             shown_subtotal = subtotal_disc if discount_active() else subtotal_orig
-            label = t("subtotal_btn", subtotal=ars(shown_subtotal), items=items_count, plural=plural) + "  ▾"
+            arrow = "▾" if not st.session_state.cart_open else "▴"
+            label = t("subtotal_btn", subtotal=ars(shown_subtotal), items=items_count, plural=plural) + f"  {arrow}"
             st.markdown('<div class="subtotal-btn">', unsafe_allow_html=True)
             if st.button(label, key="toggle_cart", use_container_width=True):
                 st.session_state.cart_open = not st.session_state.cart_open
@@ -526,11 +544,7 @@ def main():
                         st.caption(f"{t('base')}: {base_label} · {t('filling')}: {fill_label} · {t('packaging')}: {pack_label}")
                         if pack_code == "custom": st.caption(t("pack_note"))
                         if discount_active():
-                            st.markdown(
-                                f"{t('item_total')}: <span class='price-old'>{ars(line_orig)}</span> "
-                                f"<span class='price-new'>{ars(line_disc)}</span>",
-                                unsafe_allow_html=True
-                            )
+                            render_price_pair(t("item_total"), ars(line_orig), ars(line_disc))
                         else:
                             st.write(f"{t('item_total')}: **{ars(line_orig)}**")
                         if st.button(t("remove"), key=f"rm_{key}"):
@@ -545,11 +559,7 @@ def main():
                             st.caption(f"{t('base')}: {base_label} · {t('filling')}: {fill_label} · {t('packaging')}: {pack_label}")
                             if pack_code == "custom": st.caption(t("pack_note"))
                             if discount_active():
-                                st.markdown(
-                                    f"{t('item_total')}: <span class='price-old'>{ars(line_orig)}</span> "
-                                    f"<span class='price-new'>{ars(line_disc)}</span>",
-                                    unsafe_allow_html=True
-                                )
+                                render_price_pair(t("item_total"), ars(line_orig), ars(line_disc))
                             else:
                                 st.write(f"{t('item_total')}: **{ars(line_orig)}**")
                             if st.button(t("remove"), key=f"rm_{key}"):
@@ -651,31 +661,45 @@ def main():
                     st.caption(t("pack_note"))
 
                 qty_key = f"qty_{item['id']}"
-                qty_val = st.number_input(t("qty6"), min_value=6, value=st.session_state.get(qty_key, 6), step=1, key=qty_key)
+                # Step=6 guides input; guard also enforced when clicking "Add to cart"
+                qty_val = st.number_input(
+                    t("qty6"),
+                    min_value=6,
+                    value=st.session_state.get(qty_key, 6),
+                    step=6,
+                    key=qty_key
+                )
+                is_valid_qty = (qty_val >= 6) and (qty_val % 6 == 0)
+                if not is_valid_qty:
+                    st.markdown(f"<span style='color:#D91E41'>{t('qty_invalid')}</span>", unsafe_allow_html=True)
 
                 # PRICE BOX (old -> new) very prominent in red
                 p = item["price"]
                 pd = price_after_discount(p)
                 if discount_active() and pd != p:
                     st.markdown(
-                        f"<div class='cap-price'><span class='price-old'>{ars(p)}</span>"
-                        f"<span class='price-new'>{ars(pd)}</span></div>"
-                        f"<div class='cap-mini-note'>{t('discount_note_short')}</div>",
+                        f"""
+                        <div class='cap-price'>
+                          <span class='price-old'>{ars(p)}</span>
+                          <span class='price-new'>{ars(pd)}</span>
+                        </div>
+                        <div class='cap-mini-note'>{t('discount_note_short')}</div>
+                        """,
                         unsafe_allow_html=True
                     )
                 else:
                     st.write(f"**{ars(p)}** {t('unit_price')}")
 
-                if st.button(t("add_to_cart"), key=f"add_{item['id']}"):
+                if st.button(t("add_to_cart"), key=f"add_{item['id']}", disabled=not is_valid_qty):
                     key = cart_key(item["id"], base_code, fill_code, pack_code)
                     add_to_cart(key, int(qty_val))
                     st.session_state._last_added = (item["name"], int(qty_val))
                     st.rerun()
 
-            # st.divider()
+            st.divider()
 
     # ----- Footer contact (inline title + WA button) -----
-    lbl_title = {"es": "¿Querés un sitio как este?", "en": "Want a site like this?", "ru": "Хотите такой же сайт?"}[lang()]
+    lbl_title = {"es": "¿Querés un sitio como este?", "en": "Want a site like this?", "ru": "Хотите такой же сайт?"}[lang()]
     msg = auto_contact_message()
     wa_url = wa_chat_url(DEV_WA, msg)
 
