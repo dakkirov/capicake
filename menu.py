@@ -21,6 +21,8 @@ MOBILE_BREAKPOINT = 768
 DISCOUNT_RATE_FIRST = 0.10  # 10% OFF first order
 DISCOUNT_RATE_SET12 = 0.10  # extra 10% OFF when total qty of same item in cart >= 12
 MIN_LEAD_DAYS = 3  # earliest order = today + 3 days
+OPEN_TIME  = time(12, 0)
+CLOSE_TIME = time(20, 0)
 
 # =========================
 # LANGUAGE / I18N
@@ -363,6 +365,15 @@ def auto_contact_message() -> str:
     tail = {"es": f" (mensaje auto-generado {ts})", "en": f" (auto-generated message {ts})", "ru": f" (авто-сообщение {ts})"}.get(lang(), f" (auto-generated {ts})")
     return base + ctx + " " + tail
 
+def time_choices(start: time, end: time, step_minutes: int = 60):
+    opts = []
+    m = start.hour * 60 + start.minute
+    last = end.hour * 60 + end.minute
+    while m <= last:
+        opts.append(time(m // 60, m % 60))
+        m += step_minutes
+    return opts
+
 # =========================
 # STYLES
 # =========================
@@ -623,7 +634,20 @@ def main():
                     else f"Earliest available: {earliest_date.strftime('%d/%m/%Y')}"
                 )
             with col_dt2:
-                tm = st.time_input(t("time"), value=time(18, 0), key="time_pick")
+                # Show only 12:00 … 20:00 (on-the-hour)
+                allowed_times = time_choices(OPEN_TIME, CLOSE_TIME, step_minutes=60)
+                # default to 18:00 if available
+                try:
+                    default_idx = next(i for i, tv in enumerate(allowed_times) if tv == time(18, 0))
+                except StopIteration:
+                    default_idx = 0
+                tm = st.selectbox(
+                    t("time"),
+                    options=allowed_times,
+                    index=default_idx,
+                    format_func=lambda x: x.strftime("%H:%M"),
+                    key="time_pick",
+                )
             when_txt = f"{d.strftime('%d/%m/%Y')} {tm.strftime('%H:%M')}"
 
         address = st.text_input(t("address"),
@@ -635,6 +659,11 @@ def main():
             earliest_date = date.today() + timedelta(days=MIN_LEAD_DAYS)
             if st.session_state.get("date_pick") and st.session_state["date_pick"] < earliest_date:
                 st.error(f"{t('date')} ≥ {earliest_date.strftime('%d/%m/%Y')}")
+                st.stop()
+
+        if st.session_state.get("use_date"):
+            if not (OPEN_TIME <= st.session_state["time_pick"] <= CLOSE_TIME):
+                st.error(f"{t('time')} debe estar entre 12:00 y 20:00")
                 st.stop()
                 
         # Build final message + WA button
