@@ -454,6 +454,12 @@ st.markdown("""
   .cap-contact-title{ margin:0; font-weight:800; font-size:1.05rem; }
   .cap-cta, .cap-cta:link, .cap-cta:visited, .cap-cta:hover, .cap-cta:active{ display:inline-flex; align-items:center; gap:.5rem; padding:.6rem 1rem; border-radius:12px; font-weight:800; text-decoration:none !important; color:#fff !important; }
   .cap-cta--wa{ background:#25D366; }
+
+  .cap-note-red{
+      color: var(--cap-red) !important;
+      font-weight: 800;
+      margin-top: .25rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -661,7 +667,7 @@ def main():
                 placeholder=("Calle, número, piso…" if lang()=="es" else "Street, number, floor…"),
                 key="address"
             )
-            st.caption(t("delivery_cost_note"))
+            st.markdown(f"<div class='cap-note-red'>{t('delivery_cost_note')}</div>", unsafe_allow_html=True)
 
         notes = st.text_area(t("notes"),
                              placeholder=("Ej: Sin frutos secos" if lang()=="es" else "E.g., no nuts"))
