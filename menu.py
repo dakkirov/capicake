@@ -80,9 +80,9 @@ TR = {
     "en": {
         "title": "Menu & Order",
         "subtitle": "Pick your cupcakes, build the cart and send your order via WhatsApp in 1 click.",
-        "discount_banner_l1": "🎉 10% OFF your first order",
-        "discount_banner_l2": "➕ Extra 10% OFF on 12+ sets of the same type",
-        "discount_note_short": "10% first order. +10% extra on 12+ sets (same type).",
+        "discount_banner_l1": "🎉 PROMO 1: 10% OFF your first order",
+        "discount_banner_l2": "📦 PROMO 2: 10% OFF on 12+ sets of the same type",
+        "discount_note_short": "10% first order\n+10% extra on 12+ sets (same type).",
         "discount_checkbox": "It's my first order (apply 10% OFF)",
         "cart": "Your Cart",
         "empty_cart": "Your cart is empty.",
