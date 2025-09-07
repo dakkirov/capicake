@@ -21,8 +21,8 @@ MOBILE_BREAKPOINT = 768
 DISCOUNT_RATE_FIRST = 0.10  # 10% OFF first order
 DISCOUNT_RATE_SET12 = 0.10  # extra 10% OFF when total qty of same item in cart >= 12
 MIN_LEAD_DAYS = 3  # earliest order = today + 3 days
-OPEN_TIME  = time(12, 0)
-CLOSE_TIME = time(20, 0)
+OPEN_TIME  = time(9, 0)
+CLOSE_TIME = time(21, 0)
 
 # =========================
 # LANGUAGE / I18N
