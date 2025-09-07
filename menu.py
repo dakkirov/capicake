@@ -672,7 +672,7 @@ def main():
                     st.session_state._last_added = (item["name"], int(qty_val))
                     st.rerun()
 
-            st.divider()
+            # st.divider()
 
     # ----- Footer contact (inline title + WA button) -----
     lbl_title = {"es": "¿Querés un sitio как este?", "en": "Want a site like this?", "ru": "Хотите такой же сайт?"}[lang()]
