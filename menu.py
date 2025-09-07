@@ -18,7 +18,8 @@ st.set_page_config(page_title="Capicake — Menú & Pedido", page_icon="🧁", l
 BUSINESS_PHONE = "5491162107712"   # WhatsApp Business CapiCake
 CURRENCY = "ARS $"
 MOBILE_BREAKPOINT = 768
-DISCOUNT_RATE = 0.10  # 10% OFF for first order
+DISCOUNT_RATE_FIRST = 0.10  # 10% OFF first order
+DISCOUNT_RATE_SET12 = 0.10  # extra 10% OFF when total qty of same item in cart >= 12
 
 # =========================
 # LANGUAGE / I18N
@@ -32,8 +33,8 @@ TR = {
     "es": {
         "title": "Menú & Pedido",
         "subtitle": "Elegí tus cupcakes, armá el carrito y enviá el pedido por WhatsApp en 1 click.",
-        "discount_banner": "🎉 10% OFF en tu primer pedido",
-        "discount_note_short": "10% de descuento en tu primer pedido",
+        "discount_banner": "🎉 PROMO: 10% OFF en tu primer pedido • +10% OFF extra en sets de 12+ del mismo tipo",
+        "discount_note_short": "10% primer pedido. +10% extra en sets de 12+ del mismo tipo.",
         "discount_checkbox": "Es mi primer pedido (aplicar 10% OFF)",
         "cart": "Tu Carrito",
         "empty_cart": "Tu carrito está vacío.",
@@ -68,16 +69,17 @@ TR = {
         "msg_name": "Nombre: {name}",
         "msg_notes": "Notas: {notes}",
         "msg_warn": "⚠️ Elegí Packaging personalizado en algunos ítems. El costo extra se define por WhatsApp según el diseño.",
-        "msg_discount_applied": "Incluye 10% de descuento por primer pedido.",
+        "msg_discount_applied": "Incluye 10% de descuento por primer pedido y 10% extra en los ítems con 12+ del mismo tipo.",
         "msg_end": "¿Me confirmás disponibilidad y total? ¡Gracias! 🧁",
         "notice_title": "ℹ️ Diseño artesanal: puede variar",
         "qty_invalid": "⚠️ Solo se permiten cantidades múltiplos de 6 (6, 12, 18…).",
+        "set12_note": "Aplicado +10% por set de 12+ del mismo tipo.",
     },
     "en": {
         "title": "Menu & Order",
         "subtitle": "Pick your cupcakes, build the cart and send your order via WhatsApp in 1 click.",
-        "discount_banner": "🎉 10% OFF on your first order",
-        "discount_note_short": "10% discount on your first order",
+        "discount_banner": "🎉 PROMO: 10% OFF your first order • +10% OFF extra on 12+ sets of the same type",
+        "discount_note_short": "10% first order. +10% extra on 12+ sets (same type).",
         "discount_checkbox": "It's my first order (apply 10% OFF)",
         "cart": "Your Cart",
         "empty_cart": "Your cart is empty.",
@@ -112,17 +114,18 @@ TR = {
         "msg_name": "Name: {name}",
         "msg_notes": "Notes: {notes}",
         "msg_warn": "⚠️ I chose custom packaging in some items. Extra cost will be agreed on WhatsApp.",
-        "msg_discount_applied": "Includes 10% first-order discount.",
+        "msg_discount_applied": "Includes 10% first-order discount and an extra 10% on items with 12+ of the same type.",
         "msg_end": "Could you confirm availability and total? Thanks! 🧁",
         "notice_title": "ℹ️ Handmade design: variations may occur",
         "qty_invalid": "⚠️ Only multiples of 6 are allowed (6, 12, 18…).",
+        "set12_note": "Extra 10% applied for 12+ of the same type.",
     },
     "ru": {
         "title": "Меню и заказ",
         "subtitle": "Выберите капкейки, соберите корзину и отправьте заказ в WhatsApp в один клик.",
-        "discount_banner": "🎉 10% скидка на первый заказ",
-        "discount_note_short": "10% скидка на первый заказ",
-        "discount_checkbox": "Это мой первый заказ (применить -10%)",
+        "discount_banner": "🎉 АКЦИЯ: −10% на первый заказ • ещё −10% при заказе 12+ одного и того же вида",
+        "discount_note_short": "−10% первый заказ. Ещё −10% при 12+ одного вида.",
+        "discount_checkbox": "Это мой первый заказ (применить −10%)",
         "cart": "Ваша корзина",
         "empty_cart": "Ваша корзина пуста.",
         "subtotal_btn": "Итого: {subtotal} • {items} шт.",
@@ -155,11 +158,12 @@ TR = {
         "msg_addr": "Адрес: {addr}",
         "msg_name": "Имя: {name}",
         "msg_notes": "Примечания: {notes}",
-        "msg_warn": "⚠️ Я выбрал(а) индивидуальную упаковку для некоторых позиций. Доп. стоимость согласуем в WhatsApp.",
-        "msg_discount_applied": "Включает 10% скидку за первый заказ.",
+        "msg_warn": "⚠️ Выбрана индивидуальная упаковка для некоторых позиций. Доп. стоимость согласуем в WhatsApp.",
+        "msg_discount_applied": "Включает −10% за первый заказ и ещё −10% для позиций с 12+ одного вида.",
         "msg_end": "Подтвердите, пожалуйста, доступность и итоговую стоимость. Спасибо! 🧁",
         "notice_title": "ℹ️ Ручная работа: возможны отличия",
         "qty_invalid": "⚠️ Разрешены только количества, кратные 6 (6, 12, 18…).",
+        "set12_note": "Применена доп. скидка −10% за 12+ одного вида.",
     },
 }
 
@@ -189,12 +193,12 @@ PACK_LABELS = {
 # DATA
 # =========================
 MENU_ITEMS = [
-    {"id":"carrot_charm","name":"Carrot Charm","price":8500,"image":"images/orange.png","default_base":"carrot","default_filling":"passionfruit"},
-    {"id":"lemon_bliss","name":"Lemon Bliss","price":8500,"image":"images/yellow.png","default_base":"lemon","default_filling":"lemon_curd"},
-    {"id":"velvet_bloom","name":"Velvet Bloom","price":8500,"image":"images/velvet.png","default_base":"red_velvet","default_filling":"berry"},
-    {"id":"pink_dream","name":"Pink Dream","price":8500,"image":"images/rose.png","default_base":"vanilla","default_filling":"strawberry_confit"},
-    {"id":"blue_dream","name":"Blue Dream","price":8500,"image":"images/blue.png","default_base":"vanilla","default_filling":"strawberry_confit"},
-    {"id":"romance","name":"Romance","price":8500,"image":"images/joya_rosa.png","default_base":"vanilla","default_filling":"strawberry_confit"},
+    {"id":"carrot_charm","name":"Carrot Charm","price":7500,"image":"images/orange.png","default_base":"carrot","default_filling":"passionfruit"},
+    {"id":"lemon_bliss","name":"Lemon Bliss","price":7500,"image":"images/yellow.png","default_base":"lemon","default_filling":"lemon_curd"},
+    {"id":"velvet_bloom","name":"Velvet Bloom","price":7500,"image":"images/velvet.png","default_base":"red_velvet","default_filling":"berry"},
+    {"id":"pink_dream","name":"Pink Dream","price":7500,"image":"images/rose.png","default_base":"vanilla","default_filling":"strawberry_confit"},
+    {"id":"blue_dream","name":"Blue Dream","price":7500,"image":"images/blue.png","default_base":"vanilla","default_filling":"strawberry_confit"},
+    {"id":"romance","name":"Romance","price":7500,"image":"images/joya_rosa.png","default_base":"vanilla","default_filling":"strawberry_confit"},
 ]
 
 # =========================
@@ -260,17 +264,34 @@ def remove_from_cart(key: str):
     if key in st.session_state.cart:
         del st.session_state.cart[key]
 
-def discount_active() -> bool:
+def first_order_active() -> bool:
     return bool(st.session_state.get("first_order", False))
 
-def price_after_discount(p: int) -> int:
-    """Per-unit price after 10% discount, rounded to nearest peso."""
-    if not discount_active():
-        return p
-    return int(round(p * (1.0 - DISCOUNT_RATE)))
+def agg_qty_by_item():
+    """Return dict item_id -> total qty across all cart lines (ignores base/filling/pack)."""
+    totals = {}
+    for key, qty in st.session_state.get("cart", {}).items():
+        item_id, _, _, _ = parse_key(key)
+        totals[item_id] = totals.get(item_id, 0) + qty
+    return totals
 
-def totals_after_discount():
-    """Returns (subtotal_original, subtotal_discounted)."""
+def unit_price_after_discounts(p: int, item_qty_total: int) -> int:
+    """
+    Apply stacked discounts multiplicatively:
+      - 10% first-order (if active)
+      - extra 10% if total qty of the same item in cart >= 12
+    Rounds to nearest peso.
+    """
+    price = float(p)
+    if first_order_active():
+        price *= (1.0 - DISCOUNT_RATE_FIRST)
+    if item_qty_total >= 12:
+        price *= (1.0 - DISCOUNT_RATE_SET12)
+    return int(round(price))
+
+def totals_after_discounts():
+    """Returns (subtotal_original, subtotal_discounted, item_qty_totals dict)."""
+    item_totals = agg_qty_by_item()
     subtotal_orig = 0
     subtotal_disc = 0
     for key, qty in st.session_state.get("cart", {}).items():
@@ -279,18 +300,17 @@ def totals_after_discount():
         if not item:
             continue
         p = item["price"]
-        pd = price_after_discount(p)
+        pd = unit_price_after_discounts(p, item_totals.get(item_id, qty))
         subtotal_orig += p * qty
         subtotal_disc += pd * qty
-    return subtotal_orig, subtotal_disc
+    return subtotal_orig, subtotal_disc, item_totals
 
 def build_message(cart_lines, subtotal_after, buyer, modality_label, when_txt, address, notes, custom_pack_flag):
     lines = [t("msg_hi"), ""]
     lines += cart_lines
     sub_key = "msg_subtotal_no_custom" if custom_pack_flag else "msg_subtotal"
     lines += [TR[lang()][sub_key].format(subtotal=ars(subtotal_after))]
-    if discount_active():
-        lines.append(t("msg_discount_applied"))
+    lines.append(t("msg_discount_applied"))
     lines += [t("msg_mode", mode=modality_label)]
     if when_txt: lines.append(t("msg_when", when=when_txt))
     if address and modality_label.lower().startswith(("deliv","deli","delivery","entrega","del")):
@@ -309,8 +329,8 @@ def wa_chat_url(phone: str, text: str) -> str:
     return f"https://wa.me/{phone}?text={quote_plus(text)}"
 
 def auto_contact_message() -> str:
-    # show current (discounted if active) subtotal
-    _, sub_d = totals_after_discount()
+    # show current discounted subtotal
+    _, sub_d, _ = totals_after_discounts()
     ctx = ""
     items = sum(st.session_state.get("cart", {}).values()) if st.session_state.get("cart") else 0
     if items:
@@ -344,7 +364,7 @@ st.markdown("""
   .cap-discount-banner{
     background: #FFE4EA; border: 2px dashed var(--cap-red);
     color: var(--cap-red); font-weight: 900; text-align:center;
-    padding: .85rem 1rem; border-radius: 16px; margin: .3rem 0 1rem 0; font-size: 1.1rem;
+    padding: .85rem 1rem; border-radius: 16px; margin: .3rem 0 1rem 0; font-size: 1.05rem;
   }
 
   /* Price styles */
@@ -430,7 +450,6 @@ def main():
     init_item_defaults_once()
 
     # ----- Header -----
-    prev_lang = lang()
     if is_mobile_view():
         h1, h2 = st.columns([0.22, 0.22], gap="small")
         with h1:
@@ -472,11 +491,10 @@ def main():
         custom_pack_flag = False
         cart_lines = []
 
-        # Build cart display + totals
-        subtotal_orig = 0
-        subtotal_disc = 0
+        # Build totals + aggregate counts per item for set-of-12 discount
+        subtotal_orig, subtotal_disc, item_totals = totals_after_discounts()
 
-        for key, qty in st.session_state.cart.items():
+        for key, qty in st.session_state.get("cart", {}).items():
             item_id, base_code, fill_code, pack_code = parse_key(key)
             item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
             if not item:
@@ -484,28 +502,20 @@ def main():
             base_label = opt_label(BASES, base_code)
             fill_label = opt_label(FILLINGS, fill_code)
             pack_label = PACK_LABELS[pack_code][lang()]
-            price = item["price"]
-            price_d = price_after_discount(price)
-
-            line_orig = price * qty
-            line_disc = price_d * qty
-            subtotal_orig += line_orig
-            subtotal_disc += line_disc
             if pack_code == "custom":
                 custom_pack_flag = True
 
-            # Cart line for WhatsApp message (plain text)
+            # For WA message (plain)
             cart_lines.append(
                 f"- {item['name']} · {t('base').split('(')[0].strip()}: {base_label} · "
-                f"{t('filling')}: {fill_label} · {t('packaging')}: {pack_label} · "
-                f"x{qty}"
+                f"{t('filling')}: {fill_label} · {t('packaging')}: {pack_label} · x{qty}"
             )
 
         if not cart_lines:
             st.info(t("empty_cart"))
         else:
-            # Subtotal preview (old -> new) shown above the toggle button for emphasis
-            if discount_active() and subtotal_orig != subtotal_disc:
+            # Subtotal preview (old -> new)
+            if subtotal_orig != subtotal_disc:
                 st.markdown(
                     f"<div class='cap-price'><span class='price-old'>{ars(subtotal_orig)}</span>"
                     f"<span class='price-new'>{ars(subtotal_disc)}</span></div>"
@@ -513,12 +523,11 @@ def main():
                     unsafe_allow_html=True
                 )
 
-            # Subtotal button (shows discounted total if active)
+            # Subtotal button
             items_count = sum(st.session_state.cart.values())
             plural = "" if (lang()=="en" and items_count==1) else ("s" if lang()=="en" else "")
-            shown_subtotal = subtotal_disc if discount_active() else subtotal_orig
             arrow = "▾" if not st.session_state.cart_open else "▴"
-            label = t("subtotal_btn", subtotal=ars(shown_subtotal), items=items_count, plural=plural) + f"  {arrow}"
+            label = t("subtotal_btn", subtotal=ars(subtotal_disc), items=items_count, plural=plural) + f"  {arrow}"
             st.markdown('<div class="subtotal-btn">', unsafe_allow_html=True)
             if st.button(label, key="toggle_cart", use_container_width=True):
                 st.session_state.cart_open = not st.session_state.cart_open
@@ -526,7 +535,7 @@ def main():
             st.markdown('</div>', unsafe_allow_html=True)
 
             if st.session_state.cart_open:
-                # Render each line with old/new totals
+                # Detailed lines with old/new totals
                 for key, qty in list(st.session_state.cart.items()):
                     item_id, base_code, fill_code, pack_code = parse_key(key)
                     item = next((x for x in MENU_ITEMS if x["id"] == item_id), None)
@@ -534,19 +543,19 @@ def main():
                     base_label = opt_label(BASES, base_code)
                     fill_label = opt_label(FILLINGS, fill_code)
                     pack_label = PACK_LABELS[pack_code][lang()]
-                    price = item["price"]
-                    price_d = price_after_discount(price)
-                    line_orig = price * qty
-                    line_disc = price_d * qty
+                    p = item["price"]
+                    line_orig = p * qty
+                    pd_unit = unit_price_after_discounts(p, item_totals.get(item_id, qty))
+                    line_disc = pd_unit * qty
+                    set12_applied = item_totals.get(item_id, 0) >= 12
 
                     if is_mobile_view():
                         st.write(f"**{item['name']}** · x{qty}")
                         st.caption(f"{t('base')}: {base_label} · {t('filling')}: {fill_label} · {t('packaging')}: {pack_label}")
                         if pack_code == "custom": st.caption(t("pack_note"))
-                        if discount_active():
-                            render_price_pair(t("item_total"), ars(line_orig), ars(line_disc))
-                        else:
-                            st.write(f"{t('item_total')}: **{ars(line_orig)}**")
+                        render_price_pair(t("item_total"), ars(line_orig), ars(line_disc))
+                        if set12_applied:
+                            st.caption(t("set12_note"))
                         if st.button(t("remove"), key=f"rm_{key}"):
                             remove_from_cart(key); st.rerun()
                     else:
@@ -558,10 +567,9 @@ def main():
                             st.write(f"**{item['name']}** · x{qty}")
                             st.caption(f"{t('base')}: {base_label} · {t('filling')}: {fill_label} · {t('packaging')}: {pack_label}")
                             if pack_code == "custom": st.caption(t("pack_note"))
-                            if discount_active():
-                                render_price_pair(t("item_total"), ars(line_orig), ars(line_disc))
-                            else:
-                                st.write(f"{t('item_total')}: **{ars(line_orig)}**")
+                            render_price_pair(t("item_total"), ars(line_orig), ars(line_disc))
+                            if set12_applied:
+                                st.caption(t("set12_note"))
                             if st.button(t("remove"), key=f"rm_{key}"):
                                 remove_from_cart(key); st.rerun()
 
@@ -576,7 +584,7 @@ def main():
         buyer = st.text_input(t("name"), placeholder=("Tu nombre" if lang()=="es" else "Your name"))
         modality_label = st.radio(t("mode"), [t("pickup"), t("delivery")], index=0, horizontal=True)
 
-        # First-order checkbox (controls discount)
+        # First-order checkbox
         st.checkbox(t("discount_checkbox"), key="first_order")
 
         col_dt1, col_dt2 = st.columns(2)
@@ -595,7 +603,7 @@ def main():
 
         # Build final message + WA button
         if st.session_state.get("cart"):
-            _, subtotal_disc = totals_after_discount()
+            _, subtotal_disc, _ = totals_after_discounts()
             msg = build_message(cart_lines, subtotal_disc, buyer, modality_label, when_txt, address, notes, custom_pack_flag)
             if st.button(t("wa_send"), key="wa_checkout_btn"):
                 if streamlit_js_eval:
@@ -613,9 +621,17 @@ def main():
 
         # Floating Cart button on mobile
         if is_mobile_view():
-            _, sub_d = totals_after_discount()
+            _, sub_d, _ = totals_after_discounts()
             label = f"🛒 {ars(sub_d)}" if sub_d > 0 else f"🛒 {t('cart')}"
             st.markdown(f"<a href='#cart-section' class='cap-cart-fab'>{label}</a>", unsafe_allow_html=True)
+
+        # Helper: current qty in cart for a given item_id
+        def current_qty_for_item(item_id: str) -> int:
+            total = 0
+            for key, q in st.session_state.get("cart", {}).items():
+                iid, _, _, _ = parse_key(key)
+                if iid == item_id: total += q
+            return total
 
         for item in MENU_ITEMS:
             st.subheader(item["name"])
@@ -661,7 +677,6 @@ def main():
                     st.caption(t("pack_note"))
 
                 qty_key = f"qty_{item['id']}"
-                # Step=6 guides input; guard also enforced when clicking "Add to cart"
                 qty_val = st.number_input(
                     t("qty6"),
                     min_value=6,
@@ -673,15 +688,17 @@ def main():
                 if not is_valid_qty:
                     st.markdown(f"<span style='color:#D91E41'>{t('qty_invalid')}</span>", unsafe_allow_html=True)
 
-                # PRICE BOX (old -> new) very prominent in red
+                # PRICE BOX (per-unit) — reflect expected discounts.
                 p = item["price"]
-                pd = price_after_discount(p)
-                if discount_active() and pd != p:
+                # Predict total qty for this item if user adds this selection now:
+                predicted_total_for_item = current_qty_for_item(item["id"]) + int(qty_val)
+                pd_unit = unit_price_after_discounts(p, predicted_total_for_item)
+                if pd_unit != p:
                     st.markdown(
                         f"""
                         <div class='cap-price'>
                           <span class='price-old'>{ars(p)}</span>
-                          <span class='price-new'>{ars(pd)}</span>
+                          <span class='price-new'>{ars(pd_unit)}</span>
                         </div>
                         <div class='cap-mini-note'>{t('discount_note_short')}</div>
                         """,
