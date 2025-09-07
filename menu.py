@@ -80,6 +80,7 @@ TR = {
         "qty_invalid": "⚠️ Solo se permiten cantidades múltiplos de 6 (6, 12, 18…).",
         "set12_note": "Aplicado +10% por set de 12+ del mismo tipo.",
         "earliest_date_note": "Primer turno disponible: {when}",
+        "delivery_cost_note": "El costo de delivery es igual a la tarifa de Uber (desde Palermo).",
     },
     "en": {
         "title": "Menu & Order",
@@ -128,6 +129,7 @@ TR = {
         "qty_invalid": "⚠️ Only multiples of 6 are allowed (6, 12, 18…).",
         "set12_note": "Extra 10% applied for 12+ of the same type.",
         "earliest_date_note": "Earliest available: {when}",
+        "delivery_cost_note": "Delivery cost equals the Uber fare (from Palermo).",
     },
     "ru": {
         "title": "Меню и заказ",
@@ -176,6 +178,7 @@ TR = {
         "qty_invalid": "⚠️ Разрешены только количества, кратные 6 (6, 12, 18…).",
         "set12_note": "Применена доп. скидка −10% за 12+ одного вида.",
         "earliest_date_note": "Самая ранняя дата: {when}",
+        "delivery_cost_note": "Стоимость доставки равна тарифу Uber (из Палермо).",
     },
 }
 
@@ -650,8 +653,16 @@ def main():
                 )
             when_txt = f"{d.strftime('%d/%m/%Y')} {tm.strftime('%H:%M')}"
 
-        address = st.text_input(t("address"),
-                                placeholder=("Calle, número, piso…" if lang()=="es" else "Street, number, floor…"))
+        is_delivery = (modality_label == t("delivery"))
+        address = ""
+        if is_delivery:
+            address = st.text_input(
+                t("address"),
+                placeholder=("Calle, número, piso…" if lang()=="es" else "Street, number, floor…"),
+                key="address"
+            )
+            st.caption(t("delivery_cost_note"))
+
         notes = st.text_area(t("notes"),
                              placeholder=("Ej: Sin frutos secos" if lang()=="es" else "E.g., no nuts"))
 
