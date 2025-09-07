@@ -189,12 +189,12 @@ PACK_LABELS = {
 # DATA
 # =========================
 MENU_ITEMS = [
-    {"id":"carrot_charm","name":"Carrot Charm","price":7500,"image":"images/orange.png","default_base":"carrot","default_filling":"passionfruit"},
-    {"id":"lemon_bliss","name":"Lemon Bliss","price":7500,"image":"images/yellow.png","default_base":"lemon","default_filling":"lemon_curd"},
-    {"id":"velvet_bloom","name":"Velvet Bloom","price":7500,"image":"images/velvet.png","default_base":"red_velvet","default_filling":"berry"},
-    {"id":"pink_dream","name":"Pink Dream","price":7500,"image":"images/rose.png","default_base":"vanilla","default_filling":"strawberry_confit"},
-    {"id":"blue_dream","name":"Blue Dream","price":7500,"image":"images/blue.png","default_base":"vanilla","default_filling":"strawberry_confit"},
-    {"id":"romance","name":"Romance","price":7500,"image":"images/joya_rosa.png","default_base":"vanilla","default_filling":"strawberry_confit"},
+    {"id":"carrot_charm","name":"Carrot Charm","price":8500,"image":"images/orange.png","default_base":"carrot","default_filling":"passionfruit"},
+    {"id":"lemon_bliss","name":"Lemon Bliss","price":8500,"image":"images/yellow.png","default_base":"lemon","default_filling":"lemon_curd"},
+    {"id":"velvet_bloom","name":"Velvet Bloom","price":8500,"image":"images/velvet.png","default_base":"red_velvet","default_filling":"berry"},
+    {"id":"pink_dream","name":"Pink Dream","price":8500,"image":"images/rose.png","default_base":"vanilla","default_filling":"strawberry_confit"},
+    {"id":"blue_dream","name":"Blue Dream","price":8500,"image":"images/blue.png","default_base":"vanilla","default_filling":"strawberry_confit"},
+    {"id":"romance","name":"Romance","price":8500,"image":"images/joya_rosa.png","default_base":"vanilla","default_filling":"strawberry_confit"},
 ]
 
 # =========================
