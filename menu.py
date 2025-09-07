@@ -618,6 +618,16 @@ def main():
         buyer = st.text_input(t("name"), placeholder=("Tu nombre" if lang()=="es" else "Your name"))
         modality_label = st.radio(t("mode"), [t("pickup"), t("delivery")], index=0, horizontal=True)
 
+        is_delivery = (modality_label == t("delivery"))
+        address = ""
+        if is_delivery:
+            address = st.text_input(
+                t("address"),
+                placeholder=("Calle, número, piso…" if lang()=="es" else "Street, number, floor…"),
+                key="address"
+            )
+            st.markdown(f"<div class='cap-note-red'>{t('delivery_cost_note')}</div>", unsafe_allow_html=True)
+
         # First-order checkbox
         # st.checkbox(t("discount_checkbox"), key="first_order")
         st.session_state.first_order = True
@@ -658,16 +668,6 @@ def main():
                     key="time_pick",
                 )
             when_txt = f"{d.strftime('%d/%m/%Y')} {tm.strftime('%H:%M')}"
-
-        is_delivery = (modality_label == t("delivery"))
-        address = ""
-        if is_delivery:
-            address = st.text_input(
-                t("address"),
-                placeholder=("Calle, número, piso…" if lang()=="es" else "Street, number, floor…"),
-                key="address"
-            )
-            st.markdown(f"<div class='cap-note-red'>{t('delivery_cost_note')}</div>", unsafe_allow_html=True)
 
         notes = st.text_area(t("notes"),
                              placeholder=("Ej: Sin frutos secos" if lang()=="es" else "E.g., no nuts"))
