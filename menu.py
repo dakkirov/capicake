@@ -33,9 +33,9 @@ TR = {
     "es": {
         "title": "Menú & Pedido",
         "subtitle": "Elegí tus cupcakes, armá el carrito y enviá el pedido por WhatsApp en 1 click.",
-        "discount_banner_l1": "🎉 10% OFF en tu primer pedido",
-        "discount_banner_l2": "➕ 10% OFF extra en sets de 12+ del mismo tipo",
-        "discount_note_short": "10% primer pedido. +10% extra en sets de 12+ del mismo tipo.",
+        "discount_banner_l1": "🎉 PROMO 1: 10% OFF en tu primer pedido",
+        "discount_banner_l2": "📦 PROMO 2: 10% OFF en sets de 12+ del mismo tipo",
+        "discount_note_short": "10% primer pedido<br>10% en sets de 12+ del mismo tipo",
         "discount_checkbox": "Es mi primer pedido (aplicar 10% OFF)",
         "cart": "Tu Carrito",
         "empty_cart": "Tu carrito está vacío.",
@@ -82,7 +82,7 @@ TR = {
         "subtitle": "Pick your cupcakes, build the cart and send your order via WhatsApp in 1 click.",
         "discount_banner_l1": "🎉 PROMO 1: 10% OFF your first order",
         "discount_banner_l2": "📦 PROMO 2: 10% OFF on 12+ sets of the same type",
-        "discount_note_short": "10% first order\n+10% extra on 12+ sets (same type).",
+        "discount_note_short": "10% first order<br>+10% on 12+ sets (same type).",
         "discount_checkbox": "It's my first order (apply 10% OFF)",
         "cart": "Your Cart",
         "empty_cart": "Your cart is empty.",
@@ -128,8 +128,8 @@ TR = {
         "title": "Меню и заказ",
         "subtitle": "Выберите капкейки, соберите корзину и отправьте заказ в WhatsApp в один клик.",
         "discount_banner_l1": "🎉 −10% на первый заказ",
-        "discount_banner_l2": "➕ Ещё −10% при 12+ одного и того же вида",
-        "discount_note_short": "−10% первый заказ. Ещё −10% при 12+ одного вида.",
+        "discount_banner_l2": "📦 −10% при 12+ одного и того же вида",
+        "discount_note_short": "−10% первый заказ<br>−10% при 12+ одного вида",
         "discount_checkbox": "Это мой первый заказ (применить −10%)",
         "cart": "Ваша корзина",
         "empty_cart": "Ваша корзина пуста.",
@@ -595,7 +595,8 @@ def main():
         modality_label = st.radio(t("mode"), [t("pickup"), t("delivery")], index=0, horizontal=True)
 
         # First-order checkbox
-        st.checkbox(t("discount_checkbox"), key="first_order")
+        # st.checkbox(t("discount_checkbox"), key="first_order")
+        st.session_state.first_order = True
 
         col_dt1, col_dt2 = st.columns(2)
         with col_dt1:
