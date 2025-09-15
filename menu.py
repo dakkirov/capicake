@@ -700,7 +700,17 @@ def main():
                 st.link_button(t("wa_send"), url=wa_url, use_container_width=True)
             except Exception:
                 # Fallback for older versions
-                st.markdown(f"[{t('wa_send')}]({wa_url})", unsafe_allow_html=False)
+                st.markdown(
+                    f"""
+                    <a href="{wa_url}" target="_blank" rel="noopener"
+                       style="display:inline-block;background:#25D366;color:white;
+                              padding:.75rem 1rem;border-radius:12px;font-weight:800;
+                              text-decoration:none;width:100%;text-align:center;">
+                       {t("wa_send")}
+                    </a>
+                    """,
+                    unsafe_allow_html=True
+                )
         else:
             st.button(t("wa_send"), disabled=True)
 
