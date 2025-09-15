@@ -692,12 +692,15 @@ def main():
                 cart_lines, subtotal_disc, buyer, modality_label, when_txt, address, notes,
                 custom_pack_flag, apply_first, apply_set12
             )
-            if st.button(t("wa_send"), key="wa_checkout_btn"):
-                if streamlit_js_eval:
-                    streamlit_js_eval(js_expressions=f"window.open('{whatsapp_url(msg)}','_blank')",
-                                      key=f"WA_OPEN_{subtotal_disc}_{len(st.session_state.cart)}", want_output=False)
-                else:
-                    st.markdown(f"[{t('wa_send')}]({whatsapp_url(msg)})")
+        
+            # ✅ Robust open: use a real link button (no JS/popups). Falls back to markdown link if needed.
+            wa_url = whatsapp_url(msg)
+            try:
+                # Streamlit ≥1.29
+                st.link_button(t("wa_send"), url=wa_url, use_container_width=True)
+            except Exception:
+                # Fallback for older versions
+                st.markdown(f"[{t('wa_send')}]({wa_url})", unsafe_allow_html=False)
         else:
             st.button(t("wa_send"), disabled=True)
 
